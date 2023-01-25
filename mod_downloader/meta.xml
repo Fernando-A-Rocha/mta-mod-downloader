@@ -1,0 +1,125 @@
+<meta>
+    <info version="1.0.0" author="Fernando" name="mta-mod-downloader" description="mod downloader system with graphical user interface" type="script" />
+    <min_mta_version client="1.5.9-9.21437.0" server="1.5.9-9.21437.0"></min_mta_version>
+    
+    <!-- DOCUMENTATION:
+        https://github.com/Fernando-A-Rocha/mta-mod-downloader#readme
+    -->
+    
+    <!-- Mods -->
+    <mods>
+        <category name="Weapons">
+            <!-- You can use weapon IDs from https://wiki.multitheftauto.com/wiki/Weapons or the weapon object model IDs directly -->
+            <mod replace="24" name="Desert Eagle .50 (Gold)" dff="mods/Deagle.dff" txd="mods/Deagle_Gold.txd" activated_by_default="true" />
+            <mod replace="24" name="Desert Eagle .50 (Grey)" dff="mods/Deagle.dff" txd="mods/Deagle_Grey.txd" activated_by_default="false" />
+        </category>
+        <category name="Skins">
+            <mod replace="78" name="Bank Robber 1" dff="mods/Robber1.dff" txd="mods/Robber1.txd" activated_by_default="false" />
+            <mod replace="79" name="Bank Robber 2" dff="mods/Robber2.dff" txd="mods/Robber2.txd" activated_by_default="false" />
+        </category>
+        <category name="Vehicles">
+            <mod replace="400" name="Landstalker 98" dff="mods/landstalker.dff" txd="mods/landstalker.txd" activated_by_default="true" />
+            <mod replace="507" name="New Elegant" dff="mods/elegant.dff.nandocrypt" txd="mods/elegant.txd.nandocrypt" activated_by_default="true" encrypted="true" />
+            
+            <!-- Special permission -->
+            <mod replace="426" name="Schafter" dff="mods/schafter.dff" txd="mods/schafter.txd" activated_by_default="true" permission_check="isPlayerAdmin" />
+        </category>
+        <category name="Objects">
+            <mod replace="955" name="Sprunk Vending Machine" dff="mods/sprunk.dff.nandocrypt" txd="mods/sprunk.txd.nandocrypt" activated_by_default="false" encrypted="true" />
+        </category>
+    </mods>
+    
+    <!-- Resource Settings -->
+    <settings>
+        <!-- You can customize the setting values using the default 'admin' panel (see README.md)
+        or by editing them here (BE CAREFUL)
+        The * prefix means that any resource can access/change the setting -->
+        
+        <!-- Customizable General Settings -->
+        <setting name="*show_download_dialog" value="true" friendlyname="Show Downloading Dialog" desc="Enable/Disable displaying the Downloading info." accept="true,false" />
+        <setting name="*max_failed_downloads" value="3" friendlyname="Max Allowed Failed Downloads" accept="1-10" desc="Sends a warning to server console when a player exceeds the max allowed Download Fails." />
+        <setting name="*kick_when_too_many_dl_fails" value="true" friendlyname="Kick Players for Exceeding DL Fails" accept="true,false" desc="Enable/Disable kicking players when they fail to download a file X times (defined in other setting)." />
+        
+        <setting name="*enable_nandocrypt" value="true" friendlyname="Enable NandoCrypt File Decryption" accept="true,false" desc="Check documentation to understand how it works." />
+        <setting name="*nc_decrypt_function" value="ncDecrypt" friendlyname="NandoCrypt Decrypt Function Name" desc="Check documentation to understand how it works." />
+        
+        <setting name="*cmd_panel" value="mods" friendlyname="Command Name to open the Mod Downloader GUI" desc='Optional: leave empty &quot;&quot; for no command' examples="mods" />
+        <setting name="*bind_panel" value="" friendlyname="Valid Key Bind Name to open the Mod Downloader GUI" desc='Optional: leave empty &quot;&quot; for no bind' examples="f5" />
+        
+        <setting name="*allow_refresh_mods" value="false" friendlyname="Show a &apos;Refresh&apos; button in the GUI" accept="true,false" desc="Used to re-apply/reload all mods on the client" />
+        <setting name="*anti_spam_delay_load_mods" value="1000" friendlyname="Waiting Time between Mod Reloads for Player" accept="500-60000" desc="Value in Milliseconds (1 s = 1000 ms)" />
+        
+        <setting name="*anti_spam_delay_gui_buttons" value="500" friendlyname="Waiting Time between GUI Button Clicks" accept="500-5000" desc="Value in Milliseconds (1 s = 1000 ms)" />
+        
+        <!-- Customizable Colors in #HEX format
+            Google: color picker -->
+        <setting name="*color_msg" value="#ffffff" friendlyname="Message (after prefix) color" />
+        <setting name="*color_info" value="#bdbdbd" friendlyname="Information prefix color" />
+        <setting name="*color_success" value="#4bf24b" friendlyname="Success prefix color" />
+        <setting name="*color_error" value="#f24b4b" friendlyname="Error prefix color" />
+        <setting name="*color_warning" value="#f2f24b" friendlyname="Warning prefix color" />
+        
+        <!-- Customizable Text Messages -->
+        <setting name="*msg_prefix" value="[Mod Downloader] " friendlyname="Message Prefix" />
+        <setting name="*msg_no_access" value="You cannot use the Mod Downloader panel now." friendlyname="Message for lacking permission to open Mod Downloader GUI" />
+        <setting name="*msg_too_fast" value="Please wait before doing this again.." friendlyname="Message for doing something too fast" />
+        <setting name="*msg_mod_download" value="You will now download then activate the mod: " friendlyname="Message for informing of initiated mod download" />
+        <setting name="*msg_mod_activated" value="You have activated the mod: " friendlyname="Message for informing of mod activation" />
+        <setting name="*msg_mod_activated_all" value="You have activated multiple mods" friendlyname="Message for informing of mod activation (multiple)" />
+        <setting name="*msg_mod_deactivated" value="You have deactivated the mod: " friendlyname="Message for informing of mod deactivation" />
+        <setting name="*msg_mod_deactivated_all" value="You have deactivated multiple mods" friendlyname="Message for informing of mod deactivation (multiple)" />
+        
+        <!-- Customizable GUI Text -->
+        <setting name="*gui_title" value="Mod Downloader by Fernando" friendlyname="GUI text: Mod Downloader Panel title" />
+        <setting name="*gui_description" value="Enjoy!" friendlyname="GUI text: Mod Downloader Panel description (40px height, centered)" />
+        <setting name="*gui_btn_enable" value="Activate" friendlyname="GUI text: Enable a mod" />
+        <setting name="*gui_btn_disable" value="Deactivate" friendlyname="GUI text: Disable a mod" />
+        <setting name="*gui_btn_enableall" value="Activate All" friendlyname="GUI text: Enable all mods available" />
+        <setting name="*gui_btn_disableall" value="Deactivate All" friendlyname="GUI text: Disable all mods available" />
+        <setting name="*gui_btn_close" value="Close" friendlyname="GUI text: Mod Downloader close text" />
+        <setting name="*gui_btn_refresh" value="Reload" friendlyname="GUI text: Refresh/Re-apply all available mods" />
+        <setting name="*gui_grid_col_name" value="Mod Name" friendlyname="GUI text: Mod name column" />
+        <setting name="*gui_grid_col_replaces" value="Replaces" friendlyname="GUI text: Mod replaces column" />
+        <setting name="*gui_grid_col_enabled" value="Activated" friendlyname="GUI text: Mod enabled column" />
+        <setting name="*gui_grid_col_ready" value="Ready" friendlyname="GUI text: Mod ready column" />
+        <setting name="*gui_yes" value="Yes" friendlyname="GUI text: Yes" />
+        <setting name="*gui_no" value="No" friendlyname="GUI text: No" />
+    </settings>
+    
+    <!-- Main Scripts -->
+    <script type="client" src="main/permissions_client.lua" />
+    <script type="server" src="main/permissions_server.lua" />
+    <script type="client" src="main/gui_client.lua" />
+    <script type="client" src="main/system_client.lua" />
+    <script type="server" src="main/system_server.lua" />
+    
+    <!-- (Optional) Example usage scripts for a Teleportation system -->
+    <script type="client" src="main/teleport_client.lua" />
+    <script type="server" src="main/teleport_server.lua" />
+    
+    <!-- (Optional) NandoCrypt decrypter script
+        Uncomment this if you use want to use NandoCrypt -->
+    <script type="client" src="main/nando_decrypter" />
+    
+    <!-- ACL permissions that this resource requires -->
+    <aclrequest>
+        <right name="function.kickPlayer" access="true" />
+    </aclrequest>
+    
+    <!-- THE SCRIPT WILL AUTO-UPDATE THIS FILE AND INSERT NEW LINES BELOW -->
+    <file src="mods/schafter.txd" />
+    <file src="mods/schafter.dff" />
+    <file src="mods/landstalker.dff" download="false" />
+    <file src="mods/landstalker.txd" download="false" />
+    <file src="mods/elegant.dff.nandocrypt" download="false" />
+    <file src="mods/elegant.txd.nandocrypt" download="false" />
+    <file src="mods/sprunk.txd.nandocrypt" download="false" />
+    <file src="mods/sprunk.dff.nandocrypt" download="false" />
+    <file src="mods/Robber2.txd" download="false"></file>
+    <file src="mods/Robber1.dff" download="false"></file>
+    <file src="mods/Robber2.dff" download="false"></file>
+    <file src="mods/Robber1.txd" download="false"></file>
+    <file src="mods/Deagle.dff" download="false"></file>
+    <file src="mods/Deagle_Gold.txd" download="false"></file>
+    <file src="mods/Deagle_Grey.txd" download="false"></file>
+</meta>
