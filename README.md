@@ -23,6 +23,8 @@ MTA forum topic: *COMING SOON*
 
 Contact (author): Nando#7736 (**Discord**)
 
+⭐ **Star the repository if you like the project!**
+
 ## Setup
 
 **Installation** is very simple:
