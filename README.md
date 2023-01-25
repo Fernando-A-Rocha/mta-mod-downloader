@@ -14,7 +14,7 @@ The following features are available:
 
 - Resource settings to control everything
 - Minimalistic CEGUI panel
-- Permission system (per mod and to use the GUI)
+- Permissions system (per mod and to use the GUI)
 - Teleportation system with GUI (example/demo)
 
 Everything can be customized to your liking. See the [Setup](#setup) and [Use](#use) sections for more information.
@@ -62,6 +62,11 @@ Players can access the GUI by typing the command defined (default `/mods`) and/o
 Players will only be able to access the panel if they have permission. This is defined in [permissions_server.lua (canPlayerOpenGUI(player))](/mod_downloader/permissions_server.lua).
 
 Additional permissions can be defined in [permissions_server.lua (e.g. isPlayerAdmin(player))](/mod_downloader/permissions_server.lua). These functions can be referenced in each mod defined in `meta.xml`, and the player will only receive the mod if they have permission.
+
+## Screenshots
+
+![Screenshot 1](https://i.imgur.com/C2v7yCU.png)
+![Screenshot 2](https://i.imgur.com/vLsGi92.png)
 
 ## Credits
 
