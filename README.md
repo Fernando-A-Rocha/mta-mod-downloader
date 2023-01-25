@@ -57,6 +57,10 @@ Each mod has the following attributes:
 
 There is a [demo teleportation system](/mod_downloader/teleport_client.lua) included in the resource. It could be useful for Freeroam/Drift servers.
 
+## Reminders
+
+- When deleting a mod from your server's filesystem that you will also remove from the resource's `<mods>` list, you must remove the mod's `<file>` nodes that can be found at the bottom of the `meta.xml` file. Otherwise, the resource won't load if it references files that don't exist.
+
 ## Use
 
 Players can access the GUI by typing the command defined (default `/mods`) and/or the key bind defined (default none).
