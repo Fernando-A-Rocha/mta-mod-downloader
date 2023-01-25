@@ -1,4 +1,4 @@
-[!Banner](https://i.imgur.com/Hoz8KAn.png)
+![Banner](https://i.imgur.com/Hoz8KAn.png)
 
 Highly customizable Mod Downloader (with GUI) for Multi Theft Auto: San Andreas.
 
