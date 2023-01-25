@@ -60,6 +60,7 @@ There is a [demo teleportation system](/mod_downloader/teleport_client.lua) incl
 ## Reminders
 
 - When deleting a mod from your server's filesystem that you will also remove from the resource's `<mods>` list, you must remove the mod's `<file>` nodes that can be found at the bottom of the `meta.xml` file. Otherwise, the resource won't load if it references files that don't exist.
+- The `admin` settings editor doesn't update the `<settings>` in `meta.xml` when you save the settings. It actually saves the settings in the server's [settings registry](https://wiki.multitheftauto.com/wiki/Settings_system). So don't worry if you don't see the changes in `meta.xml` after saving the settings in the admin panel, MTA is loading the settings from the registry.
 
 ## Use
 
