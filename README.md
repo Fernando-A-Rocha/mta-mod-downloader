@@ -55,7 +55,7 @@ Each mod has the following attributes:
 - (optional) `encrypted` - Whether the mod is encrypted using NandoCrypt (true/false)
 - (optional) `permission_check` - The name of the serverside permission check function (e.g. `isPlayerAdmin(player)`)
 
-There is a [demo teleportation system](/mod_downloader/teleport_client.lua) included in the resource. It could be useful for Freeroam/Drift servers.
+There is a [demo teleportation system](/mod_downloader/main/teleport_client.lua) included in the resource. It could be useful for Freeroam/Drift servers.
 
 ## Reminders
 
@@ -66,9 +66,9 @@ There is a [demo teleportation system](/mod_downloader/teleport_client.lua) incl
 
 Players can access the GUI by typing the command defined (default `/mods`) and/or the key bind defined (default none).
 
-Players will only be able to access the panel if they have permission. This is defined in [permissions_server.lua (canPlayerOpenGUI(player))](/mod_downloader/permissions_server.lua).
+Players will only be able to access the panel if they have permission. This is defined in [permissions_server.lua (canPlayerOpenGUI(player))](/mod_downloader/main/permissions_server.lua).
 
-Additional permissions can be defined in [permissions_server.lua (e.g. isPlayerAdmin(player))](/mod_downloader/permissions_server.lua). These functions can be referenced in each mod defined in `meta.xml`, and the player will only receive the mod if they have permission.
+Additional permissions can be defined in [permissions_server.lua (e.g. isPlayerAdmin(player))](/mod_downloader/main/permissions_server.lua). These functions can be referenced in each mod defined in `meta.xml`, and the player will only receive the mod if they have permission.
 
 ## Screenshots
 
