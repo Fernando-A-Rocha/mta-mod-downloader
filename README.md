@@ -1,12 +1,18 @@
 ![Banner](https://i.imgur.com/Hoz8KAn.png)
 
-Highly customizable Mod Downloader (with GUI) for Multi Theft Auto: San Andreas.
+Mod Downloader (with GUI) for Multi Theft Auto: San Andreas:
+
+- Highly customizable
+- Translatable
+- Robust
+- Optimized
+- Up to date
 
 This system allows your players to control which replacement mods (skins, vehicles, objects/weapons) they want to download and use.
 
 The following features are available:
     - Resource settings to control everything
-    - Translatable GUI panel
+    - Minimalistic CEGUI panel
     - Permission system (per mod and to use the GUI)
     - Teleportation system with GUI (example/demo)
 
