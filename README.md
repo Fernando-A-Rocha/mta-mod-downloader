@@ -11,10 +11,11 @@ Mod Downloader (with GUI) for Multi Theft Auto: San Andreas:
 This system allows your players to control which replacement mods (skins, vehicles, objects/weapons) they want to download and use.
 
 The following features are available:
-    - Resource settings to control everything
-    - Minimalistic CEGUI panel
-    - Permission system (per mod and to use the GUI)
-    - Teleportation system with GUI (example/demo)
+
+- Resource settings to control everything
+- Minimalistic CEGUI panel
+- Permission system (per mod and to use the GUI)
+- Teleportation system with GUI (example/demo)
 
 Everything can be customized to your liking. See the [Setup](#setup) and [Use](#use) sections for more information.
 
