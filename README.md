@@ -80,3 +80,7 @@ A few mods are included in the main resource (for testing purposes):
 
 - Bank Robbers - [SlingShot753's Workshop](https://gtaforums.com/topic/917058-slingshot753s-workshop/)
 - Desert Eagle .50 - [SlingShot753's Workshop](https://gtaforums.com/topic/917058-slingshot753s-workshop/)
+
+## Final Note
+
+Feel free to contribute to the project by improving the code & documentation via Pull Requests. Thank you!
