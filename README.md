@@ -45,9 +45,11 @@ You can also use the default MTA:SA `admin` resource's management panel to edit 
 
 ![Admin panel](/.github/images/admin_settings.png)
 
-Mods are defined in `meta.xml` under `<mods>`. Mods are organized in categories (each has a unique name) that will be displayed in the GUI.
+Mods are defined in `meta.xml` under `<mods>`.
 
 The mod files need to exist in the server. This script is responsible for adding the `<file src='...'>` nodes to the meta.xml automatically, so you don't have to.
+
+Mods are organized in categories (each has a unique name) that will be displayed in the GUI. If a category has `group_mods="true"` then the mods in that category will be activated/deactivated all together, and players won't be able to toggle them individually.
 
 Each mod has the following attributes:
 

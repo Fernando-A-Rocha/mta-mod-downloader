@@ -15,8 +15,10 @@
         - Set dgsWindowSetCloseButtonEnabled false on mainWindow
         - Changed buttons dgsSetProperty, see https://wiki.multitheftauto.com/wiki/Dgs-dxbutton
         - Changed code that uses dgsGridListGetRowCount because rows in DGS start at 1 instead of 0
+        - Added dgsSetProperty columnTextColor for the gridlist
 ]]
 
+local COLOR_COL_TEXT = 0xffc8c8c8
 local COLOR_BTN_BG_GREEN = 0xff2b6907
 local COLOR_BTN_BG_RED = 0xff690707
 local COLOR_BTN_BG_YELLOW = 0xff696907
@@ -39,7 +41,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
     local dgsResource = getResourceFromName("dgs")
     dgsResource = dgsResource and getResourceState(dgsResource) == "running"
     if not dgsResource then
-        outputDebugString("Mod Downloader: DGS is not running, custom GUI won't work.", 1)
+        outputDebugString("DGS is not running, custom GUI won't work.", 1)
         return
     end
     DGS = exports.dgs
@@ -69,7 +71,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
     local RED_COLOR = {COLOR_BTN_BG_RED, DEFAULT_BTN_COLOR[2], DEFAULT_BTN_COLOR[3]}
     local YELLOW_COLOR = {COLOR_BTN_BG_YELLOW, DEFAULT_BTN_COLOR[2], DEFAULT_BTN_COLOR[3]}
     DGS:dgsSetProperty(enableButton, "color", GREEN_COLOR)
-    DGS:dgsSetEnabled(enableButton, false)
+    DGS:dgsSetVisible(enableButton, false)
     addEventHandler("onDgsMouseClickUp", enableButton, function()
         local selectedTab = DGS:dgsGetSelectedTab(tabPanel)
         local gridlist = getElementChildren(selectedTab, "dgs-dxgridlist")[1]
@@ -102,7 +104,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
 
     local disableButton = DGS:dgsCreateButton(x, y, 100, 40, "Disable", false, mainWindow)
     DGS:dgsSetProperty(disableButton, "color", RED_COLOR)
-    DGS:dgsSetEnabled(disableButton, false)
+    DGS:dgsSetVisible(disableButton, false)
     addEventHandler("onDgsMouseClickUp", disableButton, function()
         local selectedTab = DGS:dgsGetSelectedTab(tabPanel)
         local gridlist = getElementChildren(selectedTab, "dgs-dxgridlist")[1]
@@ -147,10 +149,11 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
         end
         lastGuiSpamEvent = getTickCount()
 
-        local allTabs = getElementChildren(tabPanel, "dgs-dxtab")
+        -- local allTabs = getElementChildren(tabPanel, "dgs-dxtab")
         local toToggle = {}
-        for i=1, #allTabs do
-            local tab = allTabs[i]
+        -- for i=1, #allTabs do
+            -- local tab = allTabs[i]
+            local tab = DGS:dgsGetSelectedTab(tabPanel)
             if tab then
                 local gridlist = getElementChildren(tab, "dgs-dxgridlist")[1]
                 local total = DGS:dgsGridListGetRowCount(gridlist)
@@ -163,7 +166,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
                     end
                 end
             end
-        end
+        -- end
         if #toToggle > 0 then
             local affected = 0
             for i=1, #toToggle do
@@ -196,10 +199,11 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
         end
         lastGuiSpamEvent = getTickCount()
         
-        local allTabs = getElementChildren(tabPanel, "dgs-dxtab")
+        -- local allTabs = getElementChildren(tabPanel, "dgs-dxtab")
         local toToggle = {}
-        for i=1, #allTabs do
-            local tab = allTabs[i]
+        -- for i=1, #allTabs do
+            -- local tab = allTabs[i]
+            local tab = DGS:dgsGetSelectedTab(tabPanel)
             if tab then
                 local gridlist = getElementChildren(tab, "dgs-dxgridlist")[1]
                 local total = DGS:dgsGridListGetRowCount(gridlist)
@@ -212,7 +216,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
                     end
                 end
             end
-        end
+        -- end
         if #toToggle > 0 then
             local affected = 0
             for i=1, #toToggle do
@@ -259,11 +263,19 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
                 local selectedTab = DGS:dgsGetSelectedTab(tabPanel)
                 DGS:dgsGridListSetSelectedItem(gridlist, -1, -1)
                 selectedRow = nil
-                DGS:dgsSetEnabled(enableButton, false)
-                DGS:dgsSetEnabled(disableButton, false)
+                DGS:dgsSetVisible(enableButton, false)
+                DGS:dgsSetVisible(disableButton, false)
             else
                 local row, col = DGS:dgsGridListGetSelectedItem(gridlist)
                 if row ~= -1 and col ~= -1 then
+                    local categoryGroupMods = DGS:dgsGridListGetItemData(gridlist, row, 2)
+                    if categoryGroupMods == true then
+                        DGS:dgsSetVisible(enableButton, false)
+                        DGS:dgsSetVisible(disableButton, false)
+                    else
+                        DGS:dgsSetVisible(enableButton, true)
+                        DGS:dgsSetVisible(disableButton, true)
+                    end
                     local activated = DGS:dgsGridListGetItemText(gridlist, row, 3)
                     if activated == getSetting("gui_yes") then
                         DGS:dgsSetEnabled(enableButton, false)
@@ -275,8 +287,8 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
                     selectedRow = row
                 else
                     selectedRow = nil
-                    DGS:dgsSetEnabled(enableButton, false)
-                    DGS:dgsSetEnabled(disableButton, false)
+                    DGS:dgsSetVisible(enableButton, false)
+                    DGS:dgsSetVisible(disableButton, false)
                 end
             end
             selectedTabName = DGS:dgsGetText(selectedTab)
@@ -299,8 +311,9 @@ local function populateCategoryTab(tab, category, mod)
         gridlist = children[1]
     else
         gridlist = DGS:dgsCreateGridList(0, 0, 1, 1, true, tab)
-        DGS:dgsGridListAddColumn(gridlist, getSetting("gui_grid_col_name"), 0.25)
-        DGS:dgsGridListAddColumn(gridlist, getSetting("gui_grid_col_replaces"), 0.25)
+        DGS:dgsSetProperty(gridlist, "columnTextColor", COLOR_COL_TEXT) -- DGS specific
+        DGS:dgsGridListAddColumn(gridlist, getSetting("gui_grid_col_name"), 0.3)
+        DGS:dgsGridListAddColumn(gridlist, getSetting("gui_grid_col_replaces"), 0.3)
         DGS:dgsGridListAddColumn(gridlist, getSetting("gui_grid_col_enabled"), 0.2)
         DGS:dgsGridListAddColumn(gridlist, getSetting("gui_grid_col_ready"), 0.2)
 
@@ -308,13 +321,14 @@ local function populateCategoryTab(tab, category, mod)
         local disableButton = getElementChildren(mainWindow, "dgs-dxbutton")[2]
     end
 
-
     local row = DGS:dgsGridListAddRow(gridlist)
 
     DGS:dgsGridListSetItemText(gridlist, row, 1, mod.name, false, false)
     DGS:dgsGridListSetItemData(gridlist, row, 1, mod.id)
 
     DGS:dgsGridListSetItemText(gridlist, row, 2, mod.replaces, false, false)
+    DGS:dgsGridListSetItemData(gridlist, row, 2, mod.categoryGroupMods)
+
     if mod.activated then
         DGS:dgsGridListSetItemText(gridlist, row, 3, getSetting("gui_yes"), false, false)
         DGS:dgsGridListSetItemColor(gridlist, row, 3, 0, 255, 0)
@@ -346,27 +360,40 @@ function populateModsGUI()
             DGS:dgsDeleteTab(tabs[i], tabPanel)
         end
     end
+
     local modsByCategory = {}
     for i=1, #myMods do
         local mod = myMods[i]
         if mod then
-            if not modsByCategory[mod.category] then
-                modsByCategory[mod.category] = {}
+            local k = nil
+            for k_ = 1, #modsByCategory do
+                local info = modsByCategory[k_]
+                if info then
+                    if mod.category == info.category then
+                        k = k_
+                        break
+                    end
+                end
             end
-            modsByCategory[mod.category][#modsByCategory[mod.category]+1] = mod
+            if not k then
+                k = #modsByCategory+1
+                modsByCategory[k] = {category=mod.category, mods={}}
+            end
+            modsByCategory[k].mods[#(modsByCategory[k].mods) + 1] = mod
         end
     end
-    for category, mods in pairs(modsByCategory) do
-        local count = 0
-        for id, mod in pairs(mods) do
-            count = count + 1
-        end
-        if count > 0 then
-            local tab = DGS:dgsCreateTab(category, tabPanel)
-            for i=1, #mods do
-                local mod = mods[i]
-                if mod then
-                    populateCategoryTab(tab, category, mod)
+    for i=1, #modsByCategory do
+        local info = modsByCategory[i]
+        if info then
+            local category = info.category
+            local mods = info.mods
+            if #mods > 0 then
+                local tab = DGS:dgsCreateTab(category, tabPanel)
+                for i=1, #mods do
+                    local mod = mods[i]
+                    if mod then
+                        populateCategoryTab(tab, category, mod)
+                    end
                 end
             end
         end

@@ -38,7 +38,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
 
     local enableButton = guiCreateButton(x, y, 100, 40, "Enable", false, mainWindow)
     guiSetProperty(enableButton, "NormalTextColour", "FF00FF00")
-    guiSetEnabled(enableButton, false)
+    guiSetVisible(enableButton, false)
     addEventHandler("onClientGUIClick", enableButton, function()
         local selectedTab = guiGetSelectedTab(tabPanel)
         local gridlist = getElementChildren(selectedTab, "gui-gridlist")[1]
@@ -71,7 +71,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
 
     local disableButton = guiCreateButton(x, y, 100, 40, "Disable", false, mainWindow)
     guiSetProperty(disableButton, "NormalTextColour", "ffff3c00")
-    guiSetEnabled(disableButton, false)
+    guiSetVisible(disableButton, false)
     addEventHandler("onClientGUIClick", disableButton, function()
         local selectedTab = guiGetSelectedTab(tabPanel)
         local gridlist = getElementChildren(selectedTab, "gui-gridlist")[1]
@@ -116,10 +116,11 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
         end
         lastGuiSpamEvent = getTickCount()
 
-        local allTabs = getElementChildren(tabPanel, "gui-tab")
+        -- local allTabs = getElementChildren(tabPanel, "gui-tab")
         local toToggle = {}
-        for i=1, #allTabs do
-            local tab = allTabs[i]
+        -- for i=1, #allTabs do
+            -- local tab = allTabs[i]
+            local tab = guiGetSelectedTab(tabPanel)
             if tab then
                 local gridlist = getElementChildren(tab, "gui-gridlist")[1]
                 local total = guiGridListGetRowCount(gridlist)
@@ -132,7 +133,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
                     end
                 end
             end
-        end
+        -- end
         if #toToggle > 0 then
             local affected = 0
             for i=1, #toToggle do
@@ -165,10 +166,11 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
         end
         lastGuiSpamEvent = getTickCount()
         
-        local allTabs = getElementChildren(tabPanel, "gui-tab")
+        -- local allTabs = getElementChildren(tabPanel, "gui-tab")
         local toToggle = {}
-        for i=1, #allTabs do
-            local tab = allTabs[i]
+        -- for i=1, #allTabs do
+            -- local tab = allTabs[i]
+            local tab = guiGetSelectedTab(tabPanel)
             if tab then
                 local gridlist = getElementChildren(tab, "gui-gridlist")[1]
                 local total = guiGridListGetRowCount(gridlist)
@@ -181,7 +183,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
                     end
                 end
             end
-        end
+        -- end
         if #toToggle > 0 then
             local affected = 0
             for i=1, #toToggle do
@@ -228,11 +230,19 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
                 local selectedTab = guiGetSelectedTab(tabPanel)
                 guiGridListSetSelectedItem(gridlist, -1, -1)
                 selectedRow = nil
-                guiSetEnabled(enableButton, false)
-                guiSetEnabled(disableButton, false)
+                guiSetVisible(enableButton, false)
+                guiSetVisible(disableButton, false)
             else
                 local row, col = guiGridListGetSelectedItem(gridlist)
                 if row ~= -1 and col ~= -1 then
+                    local categoryGroupMods = guiGridListGetItemData(gridlist, row, 2)
+                    if categoryGroupMods == true then
+                        guiSetVisible(enableButton, false)
+                        guiSetVisible(disableButton, false)
+                    else
+                        guiSetVisible(enableButton, true)
+                        guiSetVisible(disableButton, true)
+                    end
                     local activated = guiGridListGetItemText(gridlist, row, 3)
                     if activated == getSetting("gui_yes") then
                         guiSetEnabled(enableButton, false)
@@ -244,8 +254,8 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
                     selectedRow = row
                 else
                     selectedRow = nil
-                    guiSetEnabled(enableButton, false)
-                    guiSetEnabled(disableButton, false)
+                    guiSetVisible(enableButton, false)
+                    guiSetVisible(disableButton, false)
                 end
             end
             selectedTabName = guiGetText(selectedTab)
@@ -267,7 +277,7 @@ local function populateCategoryTab(tab, category, mod)
         gridlist = children[1]
     else
         gridlist = guiCreateGridList(0, 0, 1, 1, true, tab)
-        guiGridListAddColumn(gridlist, getSetting("gui_grid_col_name"), 0.25)
+        guiGridListAddColumn(gridlist, getSetting("gui_grid_col_name"), 0.3)
         guiGridListAddColumn(gridlist, getSetting("gui_grid_col_replaces"), 0.25)
         guiGridListAddColumn(gridlist, getSetting("gui_grid_col_enabled"), 0.2)
         guiGridListAddColumn(gridlist, getSetting("gui_grid_col_ready"), 0.2)
@@ -276,13 +286,14 @@ local function populateCategoryTab(tab, category, mod)
         local disableButton = getElementChildren(mainWindow, "gui-button")[2]
     end
 
-
     local row = guiGridListAddRow(gridlist)
 
     guiGridListSetItemText(gridlist, row, 1, mod.name, false, false)
     guiGridListSetItemData(gridlist, row, 1, mod.id)
 
     guiGridListSetItemText(gridlist, row, 2, mod.replaces, false, false)
+    guiGridListSetItemData(gridlist, row, 2, mod.categoryGroupMods)
+
     if mod.activated then
         guiGridListSetItemText(gridlist, row, 3, getSetting("gui_yes"), false, false)
         guiGridListSetItemColor(gridlist, row, 3, 0, 255, 0)
@@ -312,27 +323,40 @@ function populateModsGUI()
             guiDeleteTab(tabs[i], tabPanel)
         end
     end
+
     local modsByCategory = {}
     for i=1, #myMods do
         local mod = myMods[i]
         if mod then
-            if not modsByCategory[mod.category] then
-                modsByCategory[mod.category] = {}
+            local k = nil
+            for k_ = 1, #modsByCategory do
+                local info = modsByCategory[k_]
+                if info then
+                    if mod.category == info.category then
+                        k = k_
+                        break
+                    end
+                end
             end
-            modsByCategory[mod.category][#modsByCategory[mod.category]+1] = mod
+            if not k then
+                k = #modsByCategory+1
+                modsByCategory[k] = {category=mod.category, mods={}}
+            end
+            modsByCategory[k].mods[#(modsByCategory[k].mods) + 1] = mod
         end
     end
-    for category, mods in pairs(modsByCategory) do
-        local count = 0
-        for id, mod in pairs(mods) do
-            count = count + 1
-        end
-        if count > 0 then
-            local tab = guiCreateTab(category, tabPanel)
-            for i=1, #mods do
-                local mod = mods[i]
-                if mod then
-                    populateCategoryTab(tab, category, mod)
+    for i=1, #modsByCategory do
+        local info = modsByCategory[i]
+        if info then
+            local category = info.category
+            local mods = info.mods
+            if #mods > 0 then
+                local tab = guiCreateTab(category, tabPanel)
+                for i=1, #mods do
+                    local mod = mods[i]
+                    if mod then
+                        populateCategoryTab(tab, category, mod)
+                    end
                 end
             end
         end
