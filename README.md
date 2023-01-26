@@ -104,6 +104,13 @@ Additional permissions can be defined in [permissions_server.lua (e.g. isPlayerA
 ![Screenshot](/.github/images/demo_toggle.png)
 ![Screenshot](/.github/images/demo_tpGUI.png)
 
+## Useful Links
+
+- [MTA:SA Vehicle IDs](https://wiki.multitheftauto.com/wiki/Vehicle_IDs)
+- [MTA:SA Skin IDs](https://wiki.multitheftauto.com/wiki/All_Skins_Page)
+- [MTA:SA Weapon IDs & Object Models](https://wiki.multitheftauto.com/wiki/Weapons)
+- [GTA:SA Object IDs](https://dev.prineside.com/gtasa_samp_model_id/?devtools_locale=en) (ignore the SA-MP IDs)
+
 ## Credits
 
 A version of the Mod Downloader GUI using [dgs by thisdp (GitHub repository)](https://github.com/thisdp/dgs) is present in this resource.
