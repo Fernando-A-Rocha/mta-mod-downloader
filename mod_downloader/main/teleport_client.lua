@@ -24,22 +24,36 @@ local tpWindow = nil
 
 local TP_DESTINATIONS = {
 	{
-		-- Only lets you TP to Grove Street if the Grove Street mod is activated
 		name = "Grove Street",
 		description = [[Home. At least it was before I fucked everything up.]],
 		commands = {"grove", "grovestreet", "grovest", "gs"},
-		position = {  2323, -1658, 14, 0, 0, 0, 0, 69 }, --x,y,z,rx,ry,rz,interior,dimension
+		position = {  2323, -1658, 14, 0, 0, 0, 0, 0 }, --x,y,z,rx,ry,rz,interior,dimension
 		success_msg = {"Teleported to Grove Street.", 55, 255, 55, false},
-
-		protected_radius = 50,
-		protected_dimension = 69,
-
-		requireModsActivated = { 955 },
-		prevent_disable_msg = {"You can't disable the Grove Street mod while you are in Grove Street.", 255, 55, 55, false},
-		error_msg = {"You need to activate the Grove Street mod to teleport there.", 255, 55, 55, false},
 
 		disable_tp_vehicle_moving = true,
 		error_veh_moving_msg = {"Stop your vehicle to teleport to Grove Street.", 255, 55, 55, false},
+
+		show_in_gui = true,
+		gui_tp_text = "Teleport",
+	},
+	{
+		-- Only lets you TP to the Arena if the arena mods are activated
+		name = "Kickstart Arena",
+		description = [[Your favorite playground.]],
+		commands = {"arena"},
+		position = {  -1413, 1590, 1053, 0, 0, 0, 14, 69 },
+		success_msg = {"Teleported to the Arena.", 255, 255, 55, false},
+
+		protected_radius = 100,
+		protected_dimension = 69,
+
+		requireModsActivated = { 13642, 13646 },
+		output_for_mod = 13642, -- so that when trying to disable all mods it will only warn for the 1st one and not spam
+		prevent_disable_msg = {"You can't disable the Arena mods while inside.", 255, 55, 55, false},
+		error_msg = {"You need to activate the Arena mods to teleport there.", 255, 55, 55, false},
+
+		disable_tp_vehicle_moving = true,
+		error_veh_moving_msg = {"Stop your vehicle to teleport to the Arena.", 255, 55, 55, false},
 
 		tp_wait_delay = 30000,
 		show_wait_msg = true,
@@ -97,7 +111,7 @@ function isPlayerInTPArea(modIdAffected)
 			end
 
 			if isInArea and not modOk then
-				return true, prevent_disable_msg
+				return true, prevent_disable_msg, dest.output_for_mod
 			end
 		end
 	end
@@ -228,7 +242,7 @@ function openTPGUI()
 					closeTPGUI()
 				end, false)
 
-				y = y + 40
+				y = y + 40 + 10
 			end
 		end
 	end

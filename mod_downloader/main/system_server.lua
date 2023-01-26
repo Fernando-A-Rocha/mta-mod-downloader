@@ -47,25 +47,25 @@ local function outputCustomMessage(player, msg, msgType)
     outputChatBox(msg, player, 255, 255, 255, true)
 end
 
--- local missingSettings={} -- TEMP(DEV)
--- local function addMissingSettings()
---     local f = xmlLoadFile("meta.xml")
---     local children = xmlNodeGetChildren(f)
---     for i=1, #children do
---         local child = children[i]
---         if child and xmlNodeGetName(child) == "settings" then
---             for k,v in pairs(missingSettings) do
---                 local setting = xmlCreateChild(child, "setting")
---                 xmlNodeSetAttribute(setting, "name", "*"..k)
---                 xmlNodeSetAttribute(setting, "value", tostring(v))
---                 print("add", k, tostring(v))
---             end
---             break
---         end
---     end
---     xmlSaveFile(f)
---     xmlUnloadFile(f)
--- end
+local missingSettings={} -- TEMP(DEV)
+local function addMissingSettings()
+    local f = xmlLoadFile("meta.xml")
+    local children = xmlNodeGetChildren(f)
+    for i=1, #children do
+        local child = children[i]
+        if child and xmlNodeGetName(child) == "settings" then
+            for k,v in pairs(missingSettings) do
+                local setting = xmlCreateChild(child, "setting")
+                xmlNodeSetAttribute(setting, "name", "*"..k)
+                xmlNodeSetAttribute(setting, "value", tostring(v))
+                print("add", k, tostring(v))
+            end
+            break
+        end
+    end
+    xmlSaveFile(f)
+    xmlUnloadFile(f)
+end
 
 local function loadResSettings()
 
@@ -129,7 +129,7 @@ local function loadResSettings()
             if not value then
                 outputSystemMessage("Missing setting! Assuming default value for '"..name.."': "..tostring(defaultValue))
                 value = defaultValue
-                -- missingSettings[name] = value
+                missingSettings[name] = value
             else
                 if value == "true" then
                     value = true
@@ -165,7 +165,7 @@ local function loadResSettings()
         end
     end
 
-    -- addMissingSettings()
+    addMissingSettings()
 end
 
 local WEAPON_OBJECT_IDS = {
@@ -313,6 +313,13 @@ local function readModsFromMeta()
                         end
                         usedCategories[categoryName] = true
 
+                        local categoryGroupMods = xmlNodeGetAttribute(category, "group_mods")
+                        if categoryGroupMods == "true" then
+                            categoryGroupMods = true
+                        else
+                            categoryGroupMods = false
+                        end
+
                         local categoryMods = xmlNodeGetChildren(category)
                         if not categoryMods then
                             xmlUnloadFile(f)
@@ -418,12 +425,18 @@ local function readModsFromMeta()
                                     col = false
                                 end
 
+                                if not (dff or txd or col) then
+                                    xmlUnloadFile(f)
+                                    return false, "Mod '"..modName.."' has no DFF/TXD/COL files"
+                                end
+
                                 if not loadedMods then
                                     loadedMods = {}
                                 end
 
                                 loadedMods[#loadedMods+1] = {
                                     category = categoryName,
+                                    categoryGroupMods = categoryGroupMods,
                                     id = replaceID,
                                     replaces = getNameFromModelID(replaceID),
                                     name = modName,

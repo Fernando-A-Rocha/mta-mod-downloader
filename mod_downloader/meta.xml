@@ -1,5 +1,5 @@
 <meta>
-    <info version="1.0.0" author="Fernando" name="mta-mod-downloader" description="mod downloader system with graphical user interface" type="script" />
+    <info version="1.1.0" author="Fernando" name="mta-mod-downloader" description="mod downloader system with graphical user interface" type="script" />
     <min_mta_version client="1.5.9-9.21437.0" server="1.5.9-9.21437.0"></min_mta_version>
     
     <!-- DOCUMENTATION:
@@ -23,6 +23,10 @@
             
             <!-- Special permission -->
             <mod replace="426" name="Schafter" dff="mods/schafter.dff" txd="mods/schafter.txd" activated_by_default="true" permission_check="isPlayerAdmin" />
+        </category>
+        <category name="Kickstart Arena" group_mods="true">
+            <mod replace="13642" name="Custom Rings" txd="mods/kickstart.txd" activated_by_default="false" />
+            <mod replace="13646" name="Custom Landing Pads" txd="mods/kickstart.txd" activated_by_default="false" />
         </category>
         <category name="Objects">
             <mod replace="955" name="Sprunk Vending Machine" dff="mods/sprunk.dff.nandocrypt" txd="mods/sprunk.txd.nandocrypt" activated_by_default="false" encrypted="true" />
@@ -95,8 +99,8 @@
     <script type="server" src="main/system_server.lua" />
     
     <!-- Main Scripts (GUI) -->
-    <!-- <script type="client" src="main/gui_client.lua" /> -->
-    <script type="client" src="main/gui_client_dgs.lua" />
+    <script type="client" src="main/gui_client.lua" />
+    <!-- <script type="client" src="main/gui_client_dgs.lua" /> -->
     
     <!-- Main Exported Functions -->
     <export type="client" function="canEnableMod" />
@@ -139,4 +143,5 @@
     <file src="mods/Deagle.dff" download="false"></file>
     <file src="mods/Deagle_Gold.txd" download="false"></file>
     <file src="mods/Deagle_Grey.txd" download="false"></file>
+    <file src="mods/kickstart.txd" download="false"></file>
 </meta>

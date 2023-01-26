@@ -7,6 +7,8 @@
 --]]
 
 addEvent("modDownloader:receiveMods", true)
+addEvent("modDownloader:onModelReplaced", true)
+addEvent("modDownloader:onModelRestored", true)
 
 local MOD_SETTINGS_FILENAME = "@mod_settings.xml"
 
@@ -108,7 +110,7 @@ local function loadModStatusSettings()
     end
 end
 
-function setModStatusSetting(modName, activated)
+local function setModStatusSetting(modName, activated)
     savedModStatuses[modName] = activated
 
     local f
@@ -145,7 +147,7 @@ function setModStatusSetting(modName, activated)
     xmlUnloadFile(f)
 end
 
-local function unloadMod(id)
+local function restoreReplacedModel(id, modName)
     
     engineRestoreModel(id)
 
@@ -162,6 +164,8 @@ local function unloadMod(id)
 
         modElementCache[id] = nil
     end
+
+    triggerEvent("modDownloader:onModelRestored", localPlayer, id, modName)
 end
 
 function toggleModFromGUI(modId, modName, activate, showMessage)
@@ -171,7 +175,7 @@ function toggleModFromGUI(modId, modName, activate, showMessage)
         local mod = receivedMods[i]
         if mod then
             if mod.id == modId and mod.name ~= modName and mod.activated == true then
-                unloadMod(mod.id)
+                restoreReplacedModel(mod.id, mod.name)
 
                 receivedMods[i].activated = false
                 setModStatusSetting(mod.name, false)
@@ -210,7 +214,7 @@ function toggleModFromGUI(modId, modName, activate, showMessage)
                     end
                 else
 
-                    unloadMod(id)
+                    restoreReplacedModel(id, modName)
 
                     receivedMods[i].activated = false
                     setModStatusSetting(mod.name, false)
@@ -408,7 +412,7 @@ function downloadModFile(modId, modName, path, activateWhenDone)
 	end
 end
 
-local function applyModInOrder(modId, modName, path, theType, decryptFirst)
+local function applyModInOrder(modId, modName, path, theType, lastType, decryptFirst)
 
     local mod
     for i=1, #receivedMods do
@@ -457,6 +461,32 @@ local function applyModInOrder(modId, modName, path, theType, decryptFirst)
         end
     end
 
+    local function applyOneMod(pathOrData)
+        if theType == "txd" then
+            applyTXD(pathOrData)
+        elseif theType == "dff" then
+            applyDFF(pathOrData)
+        elseif theType == "col" then
+            applyCOL(pathOrData)
+        end
+
+        if theType == "txd" then
+            if mod.dff then
+                applyModInOrder(modId, modName, mod.dff.path, "dff", lastType, decryptFirst)
+            elseif mod.col then
+                applyModInOrder(modId, modName, mod.col.path, "col", lastType, decryptFirst)
+            end
+        elseif theType == "dff" then
+            if mod.col then
+                applyModInOrder(modId, modName, mod.col.path, "col", lastType, decryptFirst)
+            end
+        end
+
+        if theType == lastType then
+            triggerEvent("modDownloader:onModelReplaced", localPlayer, modId, modName)
+        end
+    end
+
     if (decryptFirst) then
         local ncEnabled = getSetting("enable_nandocrypt")
         if not ncEnabled then
@@ -464,51 +494,14 @@ local function applyModInOrder(modId, modName, path, theType, decryptFirst)
         else
             if not ncDecryptFunction(path,
                 function(data)
-                    if theType == "txd" then
-                        applyTXD(data)
-                    elseif theType == "dff" then
-                        applyDFF(data)
-                    elseif theType == "col" then
-                        applyCOL(data)
-                    end
-
-                    if theType == "txd" then
-                        if mod.dff then
-                            applyModInOrder(modId, modName, mod.dff.path, "dff", decryptFirst)
-                        elseif mod.col then
-                            applyModInOrder(modId, modName, mod.col.path, "col", decryptFirst)
-                        end
-                    elseif theType == "dff" then
-                        if mod.col then
-                            applyModInOrder(modId, modName, mod.col.path, "col", decryptFirst)
-                        end
-                    end
+                    applyOneMod(data)
                 end
             ) then
-                outputDebugString("NC - Failed to decrypt file: "..tostring(path), 1)
+                outputDebugString("NandoCrypt - Failed to decrypt file: "..tostring(path), 1)
             end
         end
     else
-        
-        if theType == "txd" then
-            applyTXD(path)
-        elseif theType == "dff" then
-            applyDFF(path)
-        elseif theType == "col" then
-            applyCOL(path)
-        end
-
-        if theType == "txd" then
-            if mod.dff then
-                applyModInOrder(modId, modName, mod.dff.path, "dff", decryptFirst)
-            elseif mod.col then
-                applyModInOrder(modId, modName, mod.col.path, "col", decryptFirst)
-            end
-        elseif theType == "dff" then
-            if mod.col then
-                applyModInOrder(modId, modName, mod.col.path, "col", decryptFirst)
-            end
-        end
+        applyOneMod(path)
     end
 end
 
@@ -532,22 +525,26 @@ function applyReadyMod(modId, modName)
 
     local encrypted = mod.encrypted
 
+    local lastType = nil
     if txd then
         txd = txd.path
+        lastType = "txd"
     end
     if dff then
         dff = dff.path
+        lastType = "dff"
     end
     if col then
         col = col.path
+        lastType= "col"
     end
 
     if txd then
-        applyModInOrder(modId, modName, txd, "txd", encrypted)
+        applyModInOrder(modId, modName, txd, "txd", lastType, encrypted)
     elseif dff then
-        applyModInOrder(modId, modName, dff, "dff", encrypted)
+        applyModInOrder(modId, modName, dff, "dff", lastType, encrypted)
     elseif col then
-        applyModInOrder(modId, modName, col, "col", encrypted)
+        applyModInOrder(modId, modName, col, "col", lastType, encrypted)
     end
 end
 
@@ -557,15 +554,40 @@ local function loadMods()
     local toDownload = {}
     local activatedIDs = {}
 
+    -- Prevent multiple mods with the same ID from being activated
+    -- You could achieve this by manually modifying the XML file (cheating), so this is a failsafe
     for i=1, #receivedMods do
         local mod = receivedMods[i]
         if mod then
             if mod.activated == true then
                 if activatedIDs[mod.id] then
-                    outputDebugString("Mod replacing ID "..tostring(mod.id).." is already activated, deactivating '"..mod.name.."'", 2)
+                    outputDebugString("AntiCheat: Mod replacing ID "..tostring(mod.id).." is already activated, deactivating '"..mod.name.."'", 2)
                     receivedMods[i].activated = false
+                    setModStatusSetting(mod.name, false)
                 else
                     activatedIDs[mod.id] = true
+                end
+            end
+        end
+    end
+
+    -- Make all mods in the same category that has categoryGroupMods=true be all enabled or all disabled, not a mix
+    for i=1, #receivedMods do
+        local mod = receivedMods[i]
+        if mod then
+            if mod.categoryGroupMods then
+                local enabled = mod.activated
+                for z=1, #receivedMods do
+                    local mod_ = receivedMods[z]
+                    if mod_ then
+                        if mod_.category == mod.category then
+                            if mod_.activated ~= enabled then
+                                outputDebugString("AntiCheat: Mod '"..mod_.name.."' is in the same category as '"..mod.name.."' and has categoryGroupMods=true, setting activated to "..tostring(enabled), 2)
+                                receivedMods[z].activated = enabled
+                                setModStatusSetting(mod_.name, enabled)
+                            end
+                        end
+                    end
                 end
             end
         end
@@ -625,6 +647,14 @@ local function loadMods()
     end
 end
 
+addEventHandler("modDownloader:onModelReplaced", localPlayer, function(id, modName)
+    -- outputDebugString("Model ID "..id.." successfully replaced with mod: "..modName, 3)
+end)
+
+addEventHandler("modDownloader:onModelRestored", localPlayer, function(id, modName)
+    -- outputDebugString("Model ID "..id.." has been restored, it had mod: "..modName, 3)
+end)
+
 local function handleReceiveMods(mods, settings)
 
     receivedSettings = settings
@@ -634,18 +664,18 @@ local function handleReceiveMods(mods, settings)
         local ncDecryptFunctionName = getSetting("nc_decrypt_function")
         local ncDecrypt = _G[ncDecryptFunctionName]
         if type(ncDecrypt) ~= "function" then
-            return outputDebugString("FATAL - Decrypt function '"..ncDecryptFunctionName.."' not loaded", 0, 255,0,0)
+            return outputDebugString("FATAL - Decrypt function '"..ncDecryptFunctionName.."' not loaded", 1)
         end
         ncDecryptFunction = ncDecrypt
     end
 
     if type(canEnableMod) ~= "function" then
-        outputDebugString("Function 'canEnableMod' is missing, assuming allowed permission", 0, 255,255,0)
+        outputDebugString("Function 'canEnableMod' is missing, assuming allowed permission", 2)
         canEnableMod = function() return true end
     end
 
     if type(canDisableMod) ~= "function" then
-        outputDebugString("Function 'canDisableMod' is missing, assuming allowed permission", 0, 255,255,0)
+        outputDebugString("Function 'canDisableMod' is missing, assuming allowed permission", 2)
         canDisableMod = function() return true end
     end
 
@@ -654,7 +684,7 @@ local function handleReceiveMods(mods, settings)
         for i=1, #receivedMods do
             local mod = receivedMods[i]
             if mod then
-                unloadMod(mod.id)
+                restoreReplacedModel(mod.id, mod.name)
             end
         end
     end

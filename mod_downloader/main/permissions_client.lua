@@ -35,9 +35,9 @@ end]]
 -- Custom: works with the code in teleport_client.lua
 -- [Exported]
 function canDisableMod(modId)
-    local inArea, msg = isPlayerInTPArea(modId)
+    local inArea, msg, outputWarningFor = isPlayerInTPArea(modId)
     if inArea then
-        if msg then
+        if msg and (not outputWarningFor) or (outputWarningFor == modId) then
             outputCustomMessage(msg[1], msg[2], msg[3], msg[4], msg[5])
         end
         return false
