@@ -18,13 +18,15 @@ The following features are available:
 - Permissions system (per mod and to use the GUI)
 - Teleportation system with GUI (example/demo)
 
+This resource is intended for servers that want to give players the choice of which server replacement mods they can use (e.g. Freeroam/RPG/Drift/Racing servers).
+
 Everything can be customized to your liking. See the sections below for more information.
 
 ⭐ **Star the repository if you like the project!**
 
 ## Support/Help
 
-MTA forum topic: *COMING SOON*
+MTA forum topic: [Link](https://forum.multitheftauto.com/topic/139565-rel-mod-downloader-with-gui/)
 
 If you need help with anything related to this project, please read the corresponding section on the MTA forum thread linked above.
 
@@ -62,7 +64,7 @@ Each mod has the following attributes:
 
 There is a [teleportation system](/mod_downloader/main/teleport_client.lua) included in the resource for demonstration purposes.
 
-It could be useful for Freeroam/Drift servers. It allows you to define locations that players can teleport to, and require certain mods to be loaded in order to teleport to them.
+It allows you to define locations that players can teleport to, and require certain mods to be loaded in order to teleport to them.
 
 You can code your own implementations using the functions and custom events available both client and server side.
 
