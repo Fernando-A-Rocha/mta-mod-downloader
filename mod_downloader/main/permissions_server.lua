@@ -9,6 +9,7 @@
 --]]
 
 --[[ Mod GUI panel access permission checking function ]]
+-- [Exported]
 function canPlayerOpenGUI(player)
     -- You may change this to your liking
     return true

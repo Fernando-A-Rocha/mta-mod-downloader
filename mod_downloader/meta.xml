@@ -93,12 +93,21 @@
     <script type="client" src="main/system_client.lua" />
     <script type="server" src="main/system_server.lua" />
     
+    <!-- Main Exported Functions -->
+    <export type="client" function="canEnableMod" />
+    <export type="client" function="canDisableMod" />
+    <export type="server" function="canPlayerOpenGUI" />
+    <export type="shared" function="getSetting" />
+    <export type="client" function="getReceivedMods" />
+    <export type="server" function="getLoadedMods" />
+    <export type="server" function="sendModsToPlayer" />
+    <export type="client" function="isModelReplaced" />
+    
     <!-- (Optional) Example usage scripts for a Teleportation system -->
     <script type="client" src="main/teleport_client.lua" />
     <script type="server" src="main/teleport_server.lua" />
     
-    <!-- (Optional) NandoCrypt decrypter script
-        Uncomment this if you use want to use NandoCrypt -->
+    <!-- (Optional) NandoCrypt decrypter script -->
     <script type="client" src="main/nando_decrypter" />
     
     <!-- ACL permissions that this resource requires -->

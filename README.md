@@ -42,7 +42,7 @@ You can also use the default MTA:SA `admin` resource's management panel to edit 
 
 Mods are defined in `meta.xml` under `<mods>`. Mods are organized in categories (each has a unique name) that will be displayed in the GUI.
 
-The mod files need to exist in the server. This script is responsible for adding the file nodes to the meta.xml automatically, so you don't have to.
+The mod files need to exist in the server. This script is responsible for adding the `<file src='...'>` nodes to the meta.xml automatically, so you don't have to.
 
 Each mod has the following attributes:
 
@@ -52,14 +52,27 @@ Each mod has the following attributes:
 - (optional) `txd` - The TXD file path (e.g. `mods/skin1.txd`)
 - (optional) `col` - The COL file path (e.g. `mods/vendingmachine.col`), this is for objects
 - (optional) `activated_by_default` - Whether the mod is activated by default (true/false)
-- (optional) `encrypted` - Whether the mod is encrypted using NandoCrypt (true/false)
+- (optional) `encrypted` - Whether the mod is encrypted using [NandoCrypt](#NandoCrypt) (true/false)
 - (optional) `permission_check` - The name of the serverside permission check function (e.g. `isPlayerAdmin(player)`)
 
-There is a [demo teleportation system](/mod_downloader/main/teleport_client.lua) included in the resource. It could be useful for Freeroam/Drift servers.
+## Demo Implementation
+
+There is a [teleportation system](/mod_downloader/main/teleport_client.lua) included in the resource for demonstration purposes.
+
+It could be useful for Freeroam/Drift servers. It allows you to define locations that players can teleport to, and require certain mods to be loaded in order to teleport to them.
+
+You can code your own implementations using the functions and custom events available both client and server side.
+
+## NandoCrypt
+
+You can use [NandoCrypt](https://github.com/Fernando-A-Rocha/mta-nandocrypt) to encrypt your mods, then add the `encrypted` attribute to the mod in `meta.xml` and set it to `true`. This system will automatically decrypt the mod files when the loading them. Don't forget that the `nando_decrypter` client script must be running, and you need to define the `decryption function name` in the resource settings.
+
+The default setup comes with a few encrypted mods and a ready to use `nando_decrypter` client script.
 
 ## Reminders
 
-- When deleting a mod from your server's filesystem that you will also remove from the resource's `<mods>` list, you must remove the mod's `<file>` nodes that can be found at the bottom of the `meta.xml` file. Otherwise, the resource won't load if it references files that don't exist.
+- After adding one or more mods to the `<mods>` list, you must `restart` the resource for the changes to take effect.
+- When deleting a mod from your server's filesystem that you will also remove from the resource's `<mods>` list, you must remove the mod's `<file src='...'>` nodes that can be found at the bottom of the `meta.xml` file. Otherwise, the resource won't load if it references files that don't exist.
 - The `admin` settings editor doesn't update the `<settings>` in `meta.xml` when you save the settings. It actually saves the settings in the server's [settings registry](https://wiki.multitheftauto.com/wiki/Settings_system). So don't worry if you don't see the changes in `meta.xml` after saving the settings in the admin panel, MTA is loading the settings from the registry.
 
 ## Use

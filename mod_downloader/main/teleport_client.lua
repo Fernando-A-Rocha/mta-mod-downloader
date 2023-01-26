@@ -145,7 +145,7 @@ function commandTP(cmd, destination)
 	local mods = dest.requireModsActivated
 	if mods and #mods > 0 then
 		for i=1, #mods do
-			if not isModActivated(mods[i]) then
+			if not isModelReplaced(mods[i]) then
 				if dest.error_msg then
 					outputChatBox(dest.error_msg[1], dest.error_msg[2], dest.error_msg[3], dest.error_msg[4], dest.error_msg[5])
 				end
@@ -240,7 +240,7 @@ function openTPGUI()
 	guiSetProperty(buttonOpenModGUI, "NormalTextColour", "AA00FF00")
 	addEventHandler("onClientGUIClick", buttonOpenModGUI, function()
 		closeTPGUI()
-		triggerServerEvent("modDownloader:openModPanel", root, localPlayer)
+		triggerServerEvent("modDownloader:requestOpenModPanel", root, localPlayer)
 	end, false)
 
 	showCursor(true)

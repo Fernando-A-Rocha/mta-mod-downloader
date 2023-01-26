@@ -301,6 +301,8 @@ end
 
 function populateModsGUI()
     local myMods = getReceivedMods()
+    if not myMods then return end
+    
     local tabPanel = getElementChildren(mainWindow, "gui-tabpanel")[1]
 
     local tabs = getElementChildren(tabPanel, "gui-tab")
@@ -380,7 +382,7 @@ function populateModsGUI()
     end
 end
 
-function openModPanel()
+function toggleGUIPanel()
 
     if guiGetVisible(mainWindow) then
         guiSetVisible(mainWindow, false)
@@ -396,7 +398,7 @@ function openModPanel()
     end
     lastGuiSpamEvent = getTickCount()
 
-    triggerServerEvent("modDownloader:openModPanel", root, localPlayer)
+    triggerServerEvent("modDownloader:requestOpenModPanel", root, localPlayer)
 end
 
 addEventHandler("modDownloader:openModPanel", localPlayer, function()

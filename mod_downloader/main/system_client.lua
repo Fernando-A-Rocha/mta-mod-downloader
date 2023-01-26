@@ -36,10 +36,12 @@ function getDownloadingInfo()
     }
 end
 
+-- [Exported]
 function getReceivedMods()
     return receivedMods
 end
 
+-- [Exported]
 function getSetting(name)
     if not receivedSettings then
         return nil
@@ -225,12 +227,13 @@ function toggleModFromGUI(modId, modName, activate, showMessage)
     end
 end
 
-function isModActivated(modId)
+-- [Exported]
+function isModelReplaced(id)
     if receivedMods then
         for i=1, #receivedMods do
             local mod = receivedMods[i]
             if mod then
-                if mod.id == modId then
+                if mod.id == id then
                     return mod.activated
                 end
             end
@@ -239,7 +242,7 @@ function isModActivated(modId)
     return false
 end
 
-function setModFileReady(modId, modName, path, activateMod)
+local function setModFileReady(modId, modName, path, activateMod)
     for i=1, #receivedMods do
         local mod = receivedMods[i]
         if mod then
@@ -350,7 +353,7 @@ local function downloadFirstInQueue()
 	end
 end
 
-function handleDownloadFinish(fileName, success)
+local function handleDownloadFinish(fileName, success)
 	if not currDownloading then return end
 	local modId, modName, path, activateWhenDone = currDownloading[1], currDownloading[2], currDownloading[3], currDownloading[4]
 
@@ -405,7 +408,7 @@ function downloadModFile(modId, modName, path, activateWhenDone)
 	end
 end
 
-function applyModInOrder(modId, modName, path, theType, decryptFirst)
+local function applyModInOrder(modId, modName, path, theType, decryptFirst)
 
     local mod
     for i=1, #receivedMods do
@@ -622,7 +625,7 @@ local function loadMods()
     end
 end
 
-function handleReceiveMods(mods, settings)
+local function handleReceiveMods(mods, settings)
 
     receivedSettings = settings
 
@@ -657,21 +660,21 @@ function handleReceiveMods(mods, settings)
     end
 
     if boundKey then
-        unbindKey(boundKey, "down", openModPanel)
+        unbindKey(boundKey, "down", toggleGUIPanel)
         boundKey = nil
     end
     local bindPanel = getSetting("bind_panel")
     if bindPanel ~= "" then
-        bindKey(bindPanel, "down", openModPanel)
+        bindKey(bindPanel, "down", toggleGUIPanel)
         boundKey = bindPanel
     end
     if cmdHandler then
-        removeCommandHandler(cmdHandler, openModPanel)
+        removeCommandHandler(cmdHandler, toggleGUIPanel)
         cmdHandler = nil
     end
     local cmdName = getSetting("cmd_panel")
     if cmdName ~= "" then
-        addCommandHandler(cmdName, openModPanel, false)
+        addCommandHandler(cmdName, toggleGUIPanel, false)
         cmdHandler = cmdName
     end
 

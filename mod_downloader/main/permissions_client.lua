@@ -14,6 +14,7 @@
         Default version
 ]]
 
+-- [Exported]
 function canEnableMod(modID)
     -- You may change this to your liking
     return true
@@ -25,12 +26,14 @@ end
 ]]
 
 -- Default version
---[[function canDisableMod(modId)
+--[[-- [Exported]
+function canDisableMod(modId)
     -- You may change this to your liking
     return true
 end]]
 
 -- Custom: works with the code in teleport_client.lua
+-- [Exported]
 function canDisableMod(modId)
     local inArea, msg = isPlayerInTPArea(modId)
     if inArea then

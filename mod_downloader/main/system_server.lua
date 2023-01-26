@@ -6,7 +6,7 @@
 	/!\ UNLESS YOU KNOW WHAT YOU ARE DOING, NO NEED TO CHANGE THIS FILE /!\
 --]]
 
-addEvent("modDownloader:openModPanel", true)
+addEvent("modDownloader:requestOpenModPanel", true)
 addEvent("modDownloader:requestRefreshMods", true)
 addEvent("modDownloader:onDownloadManyFails", true)
 
@@ -16,12 +16,20 @@ function outputServerLog(text)
 end
 
 local currentlyLoading = true
+
 local loadedSettings = nil
 local loadedMods = nil
+
 local clientsWaiting = {}
 local lastSpamLoadMods = {}
 
-local function getSetting(name)
+-- [Exported]
+function getLoadedMods()
+    return receivedMods
+end
+
+-- [Exported]
+function getSetting(name)
     if not loadedSettings then
         return nil
     end
@@ -471,6 +479,7 @@ local function getAllowedMods(player)
     return allowedMods
 end
 
+-- [Exported]
 function sendModsToPlayer(player)
     if not (isElement(player) and getElementType(player)=="player") then return end
     if not loadedMods then
@@ -531,7 +540,7 @@ local function initialize()
     end
     clientsWaiting = nil
     
-    addEventHandler("modDownloader:openModPanel", root, function(player)
+    addEventHandler("modDownloader:requestOpenModPanel", root, function(player)
         if not (isElement(player) and getElementType(player)=="player") then return end
         requestModPanel(player)
     end)
