@@ -59,7 +59,7 @@ Each mod has the following attributes:
 - (optional) `txd` - The TXD file path (e.g. `mods/skin1.txd`)
 - (optional) `col` - The COL file path (e.g. `mods/vendingmachine.col`), this is for objects
 - (optional) `activated_by_default` - Whether the mod is activated by default (true/false)
-- (optional) `encrypted` - Whether the mod is encrypted using [NandoCrypt](#NandoCrypt) (true/false)
+- (optional) `encrypted` - Whether the mod is encrypted using [NandoCrypt](#nandocrypt) (true/false)
 - (optional) `permission_check` - The name of the serverside permission check function (e.g. `isPlayerAdmin(player)`)
 
 ## Demo Implementation
@@ -100,6 +100,7 @@ Additional permissions can be defined in [permissions_server.lua (e.g. isPlayerA
 
 ![Screenshot](/.github/images/demo_gui.png)
 ![Screenshot](/.github/images/demo_gui_dgs.png)
+![Screenshot](/.github/images/demo_toggle.png)
 ![Screenshot](/.github/images/demo_tpGUI.png)
 
 ## Credits
