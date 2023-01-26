@@ -14,6 +14,7 @@ The following features are available:
 
 - Resource settings to control everything
 - Minimalistic CEGUI panel
+- Alternative DGS panel (optional)
 - Permissions system (per mod and to use the GUI)
 - Teleportation system with GUI (example/demo)
 
