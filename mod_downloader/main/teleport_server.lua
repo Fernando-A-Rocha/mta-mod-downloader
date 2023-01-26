@@ -56,10 +56,10 @@ addEventHandler("modDownloader:teleport", resourceRoot, function(position, msg)
 
         setElementFrozen(client, true)
 
-        setElementPosition(player, x, y, z)
-        setElementRotation(player, rx, ry, rz)
-        setElementInterior(player, interior)
-        setElementDimension(player, dimension)
+        setElementPosition(client, x, y, z)
+        setElementRotation(client, rx, ry, rz)
+        setElementInterior(client, interior)
+        setElementDimension(client, dimension)
 
         setTimer(function(player)
 
