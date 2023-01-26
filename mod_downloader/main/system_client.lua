@@ -483,6 +483,11 @@ local function applyModInOrder(modId, modName, path, theType, lastType, decryptF
         end
 
         if theType == lastType then
+
+            if mod.lodDistance then
+                engineSetModelLODDistance(modId, mod.lodDistance)
+            end
+
             triggerEvent("modDownloader:onModelReplaced", localPlayer, modId, modName)
         end
     end

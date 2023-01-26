@@ -29,7 +29,7 @@
             <mod replace="13646" name="Custom Landing Pads" txd="mods/kickstart.txd" activated_by_default="false" />
         </category>
         <category name="Objects">
-            <mod replace="955" name="Sprunk Vending Machine" dff="mods/sprunk.dff.nandocrypt" txd="mods/sprunk.txd.nandocrypt" activated_by_default="false" encrypted="true" />
+            <mod replace="955" name="Sprunk Vending Machine" dff="mods/sprunk.dff.nandocrypt" txd="mods/sprunk.txd.nandocrypt" lod_distance="300" activated_by_default="false" encrypted="true" />
         </category>
     </mods>
     

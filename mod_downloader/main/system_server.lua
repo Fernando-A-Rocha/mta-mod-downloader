@@ -391,6 +391,13 @@ local function readModsFromMeta()
                                     encrypted = false
                                 end
 
+                                local lodDistance = xmlNodeGetAttribute(mod, "lod_distance")
+                                if tonumber(lodDistance) then
+                                    lodDistance = tonumber(lodDistance)
+                                else
+                                    lodDistance = false
+                                end
+
                                 local dff = xmlNodeGetAttribute(mod, "dff") or nil
                                 local txd = xmlNodeGetAttribute(mod, "txd") or nil
                                 local col = xmlNodeGetAttribute(mod, "col") or nil
@@ -446,6 +453,7 @@ local function readModsFromMeta()
                                     activatedByDefault = activatedByDefault,
                                     permissionFunction = permissionFunction,
                                     encrypted = encrypted,
+                                    lodDistance = lodDistance,
                                 }
                             end
                         end

@@ -58,6 +58,7 @@ Each mod has the following attributes:
 - (optional) `dff` - The DFF file path (e.g. `mods/skin1.dff`)
 - (optional) `txd` - The TXD file path (e.g. `mods/skin1.txd`)
 - (optional) `col` - The COL file path (e.g. `mods/vendingmachine.col`), this is for objects
+- (optional) `lod_distance` - Custom [model LOD distance](https://wiki.multitheftauto.com/wiki/EngineSetModelLODDistance) (e.g. 300)
 - (optional) `activated_by_default` - Whether the mod is activated by default (true/false)
 - (optional) `encrypted` - Whether the mod is encrypted using [NandoCrypt](#nandocrypt) (true/false)
 - (optional) `permission_check` - The name of the serverside permission check function (e.g. `isPlayerAdmin(player)`)
