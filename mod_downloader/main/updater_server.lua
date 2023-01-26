@@ -7,9 +7,7 @@
 --]]
 
 local function outputUpdaterInfo(msg)
-    local resourceName = string.upper(getResourceName(getThisResource()))
-    msg = "["..resourceName.." UPDATER] "..msg
-    outputServerLog(msg)
+    outputServerLog("[Mod Downloader] "..msg)
 end
 
 local function fetchLatestCallback(data, info)

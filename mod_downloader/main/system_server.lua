@@ -10,9 +10,8 @@ addEvent("modDownloader:requestOpenModPanel", true)
 addEvent("modDownloader:requestRefreshMods", true)
 addEvent("modDownloader:onDownloadManyFails", true)
 
-outputServerLog_ = outputServerLog
-function outputServerLog(text)
-    outputServerLog_("[Mod Downloader] "..tostring(text))
+local function outputSystemMessage(msg)
+    outputServerLog("[Mod Downloader] "..tostring(msg))
 end
 
 local currentlyLoading = true
@@ -128,7 +127,7 @@ local function loadResSettings()
 
             local value = get(name)
             if not value then
-                outputServerLog("Missing setting! Assuming default value for '"..name.."': "..tostring(defaultValue))
+                outputSystemMessage("Missing setting! Assuming default value for '"..name.."': "..tostring(defaultValue))
                 value = defaultValue
                 -- missingSettings[name] = value
             else
@@ -142,19 +141,19 @@ local function loadResSettings()
             end
 
             if type(value) ~= type(defaultValue) then
-                outputServerLog("Invalid value for setting '"..name.."', expected "..type(defaultValue)..", got "..type(value))
-                outputServerLog("  Assuming default value: "..tostring(defaultValue))
+                outputSystemMessage("Invalid value for setting '"..name.."', expected "..type(defaultValue)..", got "..type(value))
+                outputSystemMessage("  Assuming default value: "..tostring(defaultValue))
                 value = defaultValue
             end
 
             if type(value) == "number" then
                 if minValue and value < minValue then
-                    outputServerLog("Invalid value for setting '"..name.."', expected minimum value of "..tostring(minValue)..", got "..tostring(value))
-                    outputServerLog("  Assuming minimum value: "..tostring(minValue))
+                    outputSystemMessage("Invalid value for setting '"..name.."', expected minimum value of "..tostring(minValue)..", got "..tostring(value))
+                    outputSystemMessage("  Assuming minimum value: "..tostring(minValue))
                     value = minValue
                 elseif maxValue and value > maxValue then
-                    outputServerLog("Invalid value for setting '"..name.."', expected maximum value of "..tostring(maxValue)..", got "..tostring(value))
-                    outputServerLog("  Assuming maximum value: "..tostring(maxValue))
+                    outputSystemMessage("Invalid value for setting '"..name.."', expected maximum value of "..tostring(maxValue)..", got "..tostring(value))
+                    outputSystemMessage("  Assuming maximum value: "..tostring(maxValue))
                     value = maxValue
                 end
             end
@@ -372,8 +371,8 @@ local function readModsFromMeta()
                                 if permissionCheck then
                                     permissionFunction = _G[permissionCheck]
                                     if type(permissionFunction) ~= "function" then
-                                        outputServerLog("Invalid serverside permission check function '"..permissionCheck.."' for mod '"..modName.."'")
-                                        outputServerLog("  Assuming no permission check")
+                                        outputSystemMessage("Invalid serverside permission check function '"..permissionCheck.."' for mod '"..modName.."'")
+                                        outputSystemMessage("  Assuming no permission check")
                                         permissionFunction = nil
                                     end
                                 end
@@ -518,14 +517,14 @@ local function initialize()
 
     local result, reason = readModsFromMeta()
     if not result then
-        outputServerLog("Error while reading mods from meta.xml:")
-        outputServerLog("> "..reason)
+        outputSystemMessage("Error while reading mods from meta.xml:")
+        outputSystemMessage("> "..reason)
         stopResource(resource)
         return
     end
 
     if result == "RESTART" then
-        outputServerLog("Mods were added to meta.xml, restarting resource...")
+        outputSystemMessage("Mods were added to meta.xml, restarting resource...")
         restartResource(resource)
         return
     end
@@ -565,7 +564,7 @@ end)
 addEventHandler("modDownloader:onDownloadManyFails", resourceRoot, function(kick, times, modId, modName, path)
     if not client then return end
 
-	outputServerLog(getPlayerName(client).." failed to download '"..path.."' (#"..modId.." - "..modName..") "..times.." times"..(kick and ", kicking." or "."))
+	outputSystemMessage(getPlayerName(client).." failed to download '"..path.."' (#"..modId.." - "..modName..") "..times.." times"..(kick and ", kicking." or "."))
 
     if kick == true then
 	    kickPlayer(client, "System", "Failed to download '"..path.."' (#"..modId.." - "..modName..") "..times.." times.")
