@@ -17,13 +17,15 @@ The following features are available:
 - Permissions system (per mod and to use the GUI)
 - Teleportation system with GUI (example/demo)
 
-Everything can be customized to your liking. See the [Setup](#setup) and [Use](#use) sections for more information.
+Everything can be customized to your liking. See the sections below for more information.
+
+⭐ **Star the repository if you like the project!**
+
+## Support/Help
 
 MTA forum topic: *COMING SOON*
 
-Contact (author): Nando#7736 (**Discord**)
-
-⭐ **Star the repository if you like the project!**
+If you need help with anything related to this project, please read the corresponding section on the MTA forum thread linked above.
 
 ## Setup
 
