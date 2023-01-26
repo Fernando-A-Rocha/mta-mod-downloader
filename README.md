@@ -71,11 +71,17 @@ The default setup comes with a few encrypted mods and a ready to use `nando_decr
 
 ## Reminders
 
-- After adding one or more mods to the `<mods>` list, you must `restart` the resource for the changes to take effect.
+- After adding one or more mods to the `<mods>` list or changing any of the `<settings>`, you must `restart` the resource for the changes to take effect.
 - When deleting a mod from your server's filesystem that you will also remove from the resource's `<mods>` list, you must remove the mod's `<file src='...'>` nodes that can be found at the bottom of the `meta.xml` file. Otherwise, the resource won't load if it references files that don't exist.
 - The `admin` settings editor doesn't update the `<settings>` in `meta.xml` when you save the settings. It actually saves the settings in the server's [settings registry](https://wiki.multitheftauto.com/wiki/Settings_system). So don't worry if you don't see the changes in `meta.xml` after saving the settings in the admin panel, MTA is loading the settings from the registry.
 
-## Use
+## GUI Customization
+
+The GUI is fully customizable. You can change the colors, messages, etc. in the resource's `<settings>` in `meta.xml`.
+
+Ontop of that, you can also use the `dgs` version of the GUI ([gui_client_dgs.lua](/mod_downloader/main/gui_client_dgs.lua)) which was created using [DGS version 3.519](https://github.com/thisdp/dgs/releases/tag/3.519) (a GUI library that uses dxDraw and is mostly compatible with the CEGUI functions). To do this, comment the `gui_client.lua` script node and uncomment the `gui_client_dgs.lua` one in `meta.xml`.
+
+## Usage
 
 Players can access the GUI by typing the command defined (default `/mods`) and/or the key bind defined (default none).
 

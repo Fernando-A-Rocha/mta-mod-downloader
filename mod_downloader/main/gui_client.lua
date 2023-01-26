@@ -408,6 +408,9 @@ addEventHandler("modDownloader:openModPanel", localPlayer, function()
     end
 end)
 
+--[[
+    Downloading dialog triggered by system_client.lua
+]]
 function drawDownloadingDialog()
     local info = getDownloadingInfo()
 	local queueSize = #(info.fileDLQueue)
