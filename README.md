@@ -96,7 +96,9 @@ Additional permissions can be defined in [permissions_server.lua (e.g. isPlayerA
 
 ## Credits
 
-A few mods are included in the main resource (for testing purposes):
+A version of the Mod Downloader GUI using [dgs (GitHub repository) by thisdp](https://github.com/thisdp/dgs) is present in this resource.
+
+Several mods are also included for testing purposes:
 
 - Bank Robbers - [SlingShot753's Workshop](https://gtaforums.com/topic/917058-slingshot753s-workshop/)
 - Desert Eagle .50 - [SlingShot753's Workshop](https://gtaforums.com/topic/917058-slingshot753s-workshop/)
