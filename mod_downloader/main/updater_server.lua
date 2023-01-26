@@ -10,7 +10,6 @@ local function outputUpdaterInfo(msg)
     local resourceName = string.upper(getResourceName(getThisResource()))
     msg = "["..resourceName.." UPDATER] "..msg
     outputServerLog(msg)
-    outputDebugString(msg, 0, 255,255,255)
 end
 
 local function fetchLatestCallback(data, info)
