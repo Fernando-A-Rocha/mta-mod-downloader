@@ -115,6 +115,9 @@
     <!-- (Optional) NandoCrypt decrypter script -->
     <script type="client" src="main/nando_decrypter" />
     
+    <!-- (Optional but Recommended) Resource Update Checker -->
+    <script type="server" src="main/updater_server.lua" />
+    
     <!-- ACL permissions that this resource requires -->
     <aclrequest>
         <right name="function.kickPlayer" access="true" />

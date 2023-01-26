@@ -96,7 +96,7 @@ Additional permissions can be defined in [permissions_server.lua (e.g. isPlayerA
 
 ## Credits
 
-A version of the Mod Downloader GUI using [dgs (GitHub repository) by thisdp](https://github.com/thisdp/dgs) is present in this resource.
+A version of the Mod Downloader GUI using [dgs by thisdp (GitHub repository)](https://github.com/thisdp/dgs) is present in this resource.
 
 Several mods are also included for testing purposes:
 
