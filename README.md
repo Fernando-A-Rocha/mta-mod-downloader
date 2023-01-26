@@ -1,4 +1,4 @@
-![Banner](https://i.imgur.com/Hoz8KAn.png)
+![Banner](/.github/images/banner.png)
 
 Mod Downloader (with GUI) for Multi Theft Auto: San Andreas:
 
@@ -38,7 +38,7 @@ To **customize** the resource, you can edit the `<settings>` in `meta.xml` manua
 
 You can also use the default MTA:SA `admin` resource's management panel to edit the settings.
 
-![Admin panel](https://i.imgur.com/HXH6tVF.png)
+![Admin panel](/.github/images/admin_settings.png)
 
 Mods are defined in `meta.xml` under `<mods>`. Mods are organized in categories (each has a unique name) that will be displayed in the GUI.
 
@@ -91,8 +91,9 @@ Additional permissions can be defined in [permissions_server.lua (e.g. isPlayerA
 
 ## Screenshots
 
-![Screenshot 1](https://i.imgur.com/C2v7yCU.png)
-![Screenshot 2](https://i.imgur.com/vLsGi92.png)
+![Screenshot](/.github/images/demo_gui.png)
+![Screenshot](/.github/images/demo_gui_dgs.png)
+![Screenshot](/.github/images/demo_tpGUI.png)
 
 ## Credits
 
