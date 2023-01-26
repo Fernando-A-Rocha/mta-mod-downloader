@@ -65,7 +65,7 @@ You can code your own implementations using the functions and custom events avai
 
 ## NandoCrypt
 
-You can use [NandoCrypt](https://github.com/Fernando-A-Rocha/mta-nandocrypt) to encrypt your mods, then add the `encrypted` attribute to the mod in `meta.xml` and set it to `true`. This system will automatically decrypt the mod files when loading them. Don't forget that the `nando_decrypter` client script must be running, and you need to define the correct `decryption function name` in the resource settings.
+You can use [NandoCrypt (GitHub repository)](https://github.com/Fernando-A-Rocha/mta-nandocrypt) to encrypt your mods, then add the `encrypted` attribute to the mod in `meta.xml` and set it to `true`. This system will automatically decrypt the mod files when loading them. Don't forget that the `nando_decrypter` client script must be running, and you need to define the correct `decryption function name` in the resource settings.
 
 The default setup comes with a few encrypted mods and a ready to use `nando_decrypter` client script.
 
