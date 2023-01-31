@@ -88,10 +88,10 @@
         <setting name="*gui_grid_col_ready" value="Ready" friendlyname="GUI text: Mod ready column" />
         <setting name="*gui_yes" value="Yes" friendlyname="GUI text: Yes" />
         <setting name="*gui_no" value="No" friendlyname="GUI text: No" />
-        <setting name="*gui_request_description" value="It is recommended that you activate/deactivate the following mods."></setting>
-        <setting name="*gui_request_disable" value="Message from the server: we recommend that you deactivate the following mods:"></setting>
-        <setting name="*gui_request_enable" value="Message from the server: we recommend that you activate the following mods:"></setting>
-        <setting name="*gui_request_title" value="Mod Requests"></setting>
+        <setting name="*gui_request_description" value="It is recommended that you activate/deactivate the following mods." />
+        <setting name="*gui_request_disable" value="Message from the server: we recommend that you deactivate the following mods:" />
+        <setting name="*gui_request_enable" value="Message from the server: we recommend that you activate the following mods:" />
+        <setting name="*gui_request_title" value="Mod Requests" />
     </settings>
     
     <!-- Main Scripts (Permissions) -->
