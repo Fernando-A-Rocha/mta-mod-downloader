@@ -8,6 +8,7 @@
 
 addEvent("modDownloader:requestOpenModPanel", true)
 addEvent("modDownloader:requestRefreshMods", true)
+addEvent("modDownloader:requestForceMods", true)
 addEvent("modDownloader:onDownloadManyFails", true)
 
 local function outputSystemMessage(msg)
@@ -24,7 +25,7 @@ local lastSpamLoadMods = {}
 
 -- [Exported]
 function getLoadedMods()
-    return receivedMods
+    return loadedMods
 end
 
 -- [Exported]
@@ -113,6 +114,9 @@ local function loadResSettings()
         {"gui_grid_col_replaces", "Replaces"},
         {"gui_grid_col_enabled", "Activated"},
         {"gui_grid_col_ready", "Ready"},
+        {"gui_request_title", "Mod Requests"},
+        {"gui_request_enable", "Message from the server: we recommend that you activate the following mods:"},
+        {"gui_request_disable", "Message from the server: we recommend that you deactivate the following mods:"},
         {"gui_yes", "Yes"},
         {"gui_no", "No"},
     }
@@ -500,13 +504,13 @@ local function getAllowedMods(player)
 end
 
 -- [Exported]
-function sendModsToPlayer(player)
+function sendModsToPlayer(player, ignoreSpam)
     if not (isElement(player) and getElementType(player)=="player") then return end
-    if not loadedMods then
+    if currentlyLoading then
         return
     end
 
-    if lastSpamLoadMods[player] then
+    if lastSpamLoadMods[player] and (ignoreSpam ~= true) then
         if getTickCount() - lastSpamLoadMods[player] < getSetting("anti_spam_delay_load_mods") then
             triggerClientEvent(player, "modDownloader:reenableModPanel", player)
             outputCustomMessage(player, getSetting("msg_too_fast"), "error")
@@ -521,6 +525,38 @@ function sendModsToPlayer(player)
     triggerClientEvent(player, "modDownloader:receiveMods", player, allowedMods, loadedSettings)
 end
 addEventHandler("modDownloader:requestRefreshMods", root, sendModsToPlayer)
+
+-- [Exported]
+function requestForceModsPlayer(player, modList, options)
+    if not (isElement(player) and getElementType(player)=="player") then return end
+    if currentlyLoading then
+        return
+    end
+
+    assert((isElement(player) and getElementType(player)=="player"), "Bad argument @ requestForceModsPlayer [player expected, got "..type(player).."]")
+    assert((type(modList)=="table"), "Bad argument @ requestForceModsPlayer [table expected, got "..type(modList).."]")
+    assert((type(options)=="table"), "Bad argument @ requestForceModsPlayer [table expected, got "..type(enable).."]")
+
+    for i=1, #modList do
+        local info = modList[i]
+        if info then
+            assert(type(info.id)=="number", "Bad argument @ requestForceModsPlayer modList["..tostring(k).."].id [number expected, got "..type(info.id).."]")
+            assert(type(info.name)=="string", "Bad argument @ requestForceModsPlayer modList["..tostring(k).."].name [string expected, got "..type(info.name).."]")
+        end
+    end
+
+    if (options.enable ~= nil) then
+        assert(type(options.enable)=="boolean", "Bad argument @ requestForceModsPlayer options.enable [boolean expected, got "..type(enable).."]")
+    end
+    if (options.force ~= nil) then
+        assert(type(options.force)=="boolean", "Bad argument @ requestForceModsPlayer options.force [boolean expected, got "..type(force).."]")
+    end
+
+    triggerClientEvent(player, "modDownloader:forceMods", player, modList, options)
+
+    return true
+end
+addEventHandler("modDownloader:requestForceMods", root, requestForceModsPlayer)
 
 local function requestModPanel(player)
     
@@ -555,7 +591,7 @@ local function initialize()
     for i=1, #clientsWaiting do
         local player = clientsWaiting[i]
         if player and isElement(player) then
-            sendModsToPlayer(player)
+            sendModsToPlayer(player, true)
         end
     end
     clientsWaiting = nil
@@ -577,7 +613,7 @@ addEventHandler("onPlayerResourceStart", root, function(res)
         if currentlyLoading then
             clientsWaiting[#clientsWaiting+1] = source
         else
-            sendModsToPlayer(source)
+            sendModsToPlayer(source, true)
         end
     end
 end)
