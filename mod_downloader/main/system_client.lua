@@ -198,8 +198,15 @@ function toggleModFromGUI(modId, modName, activate, showMessage)
                             outputCustomMessage(getSetting("msg_mod_download")..(mod.name), "warning")
                         end
 
+                        local toDL = {}
                         for path, _ in pairs(mod.pendingDownloads) do
-                            downloadModFile(modId, mod.name, path, true)
+                            toDL[#toDL+1] = path
+                        end
+                        for j=1, #toDL do
+                            local DL = toDL[j]
+                            if DL then
+                                downloadModFile(modId, mod.name, DL, true)
+                            end
                         end
                     else
                         applyReadyMod(modId, modName)
