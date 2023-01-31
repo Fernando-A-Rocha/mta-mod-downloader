@@ -510,7 +510,7 @@ function sendModsToPlayer(player, ignoreSpam)
         return
     end
 
-    if lastSpamLoadMods[player] and not (ignoreSpam==true) then
+    if lastSpamLoadMods[player] and (ignoreSpam ~= true) then
         if getTickCount() - lastSpamLoadMods[player] < getSetting("anti_spam_delay_load_mods") then
             triggerClientEvent(player, "modDownloader:reenableModPanel", player)
             outputCustomMessage(player, getSetting("msg_too_fast"), "error")

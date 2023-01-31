@@ -95,10 +95,13 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
 							if el == localPlayer and md and getElementInterior(col) == getElementInterior(localPlayer) then
 								local enable = (hit == "enable" or false)
 								local list = {}
-								for i=1, #req_mods do
-									if (enable and not isModelReplaced(req_mods[i].id))
-									or ((not enable) and isModelReplaced(req_mods[i].id)) then
-										list[#list+1] = {id=req_mods[i].id, name=req_mods[i].name}
+								for j=1, #req_mods do
+									local req_mod = req_mods[j]
+									if req_mod then
+										if (enable and not isModelReplaced(req_mod.id))
+										or ((not enable) and isModelReplaced(req_mod.id)) then
+											list[#list+1] = {id=req_mod.id, name=req_mod.name}
+										end
 									end
 								end
 								if #list > 0 then
@@ -114,10 +117,13 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
 							if el == localPlayer and md and getElementInterior(col) == getElementInterior(localPlayer) then
 								local enable = (hit == "enable" or false)
 								local list = {}
-								for i=1, #req_mods do
-									if (enable and not isModelReplaced(req_mods[i].id))
-									or ((not enable) and isModelReplaced(req_mods[i].id)) then
-										list[#list+1] = {id=req_mods[i].id, name=req_mods[i].name}
+								for j=1, #req_mods do
+									local req_mod = req_mods[j]
+									if req_mod then
+										if (enable and not isModelReplaced(req_mod.id))
+										or ((not enable) and isModelReplaced(req_mod.id)) then
+											list[#list+1] = {id=req_mod.id, name=req_mod.name}
+										end
 									end
 								end
 								if #list > 0 then

@@ -234,7 +234,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
             local gridlist = getElementChildren(selectedTab, "gui-gridlist")[1]
             
             if selectedTabName and selectedTabName ~= guiGetText(selectedTab) then
-                local selectedTab = guiGetSelectedTab(tabPanel)
+                selectedTab = guiGetSelectedTab(tabPanel)
                 guiGridListSetSelectedItem(gridlist, -1, -1)
                 selectedRow = nil
                 guiSetVisible(enableButton, false)
@@ -359,8 +359,8 @@ function populateModsGUI()
             local mods = info.mods
             if #mods > 0 then
                 local tab = guiCreateTab(category, tabPanel)
-                for i=1, #mods do
-                    local mod = mods[i]
+                for j=1, #mods do
+                    local mod = mods[j]
                     if mod then
                         populateCategoryTab(tab, category, mod)
                     end

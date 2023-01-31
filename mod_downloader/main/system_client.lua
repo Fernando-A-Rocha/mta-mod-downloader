@@ -395,7 +395,7 @@ addEventHandler("onClientFileDownloadComplete", resourceRoot, handleDownloadFini
 
 function downloadModFile(modId, modName, path, activateWhenDone)
 
-    local i=1, #fileDLQueue do
+    for i=1, #fileDLQueue do
         local v = fileDLQueue[i]
 		if v and v[1] == modId and v[2] == modName and v[3] == path then
 			return
@@ -690,8 +690,8 @@ addEventHandler("modDownloader:forceMods", localPlayer,
                 local modName = info.name
 
                 local found = nil
-                for i=1, #mods do
-                    local mod = mods[i]
+                for j=1, #mods do
+                    local mod = mods[j]
                     if mod then
                         if mod.id == modId then
                             found = mod

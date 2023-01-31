@@ -267,7 +267,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
             local gridlist = getElementChildren(selectedTab, "dgs-dxgridlist")[1]
             
             if selectedTabName and selectedTabName ~= DGS:dgsGetText(selectedTab) then
-                local selectedTab = DGS:dgsGetSelectedTab(tabPanel)
+                selectedTab = DGS:dgsGetSelectedTab(tabPanel)
                 DGS:dgsGridListSetSelectedItem(gridlist, -1, -1)
                 selectedRow = nil
                 DGS:dgsSetVisible(enableButton, false)
@@ -396,8 +396,8 @@ function populateModsGUI()
             local mods = info.mods
             if #mods > 0 then
                 local tab = DGS:dgsCreateTab(category, tabPanel)
-                for i=1, #mods do
-                    local mod = mods[i]
+                for j=1, #mods do
+                    local mod = mods[j]
                     if mod then
                         populateCategoryTab(tab, category, mod)
                     end
