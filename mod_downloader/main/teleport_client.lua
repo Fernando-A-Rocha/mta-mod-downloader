@@ -35,6 +35,10 @@ local TP_DESTINATIONS = {
 
 		show_in_gui = true,
 		gui_tp_text = "Teleport",
+
+		-- when entering this colsphere, player will receive popup to activate particular mods
+		req_col = { col=createColSphere(2323, -1658, 14, 35), hit="enable" }, --leave="disable"
+		req_mods = { { id=955, name="Sprunk Vending Machine"} },
 	},
 	{
 		-- Only lets you TP to the Arena if the arena mods are activated
@@ -71,6 +75,64 @@ local TP_DESTINATIONS = {
 		error_veh_msg = {"You can't teleport to Blueberry while in a vehicle.", 255, 55, 55, false},
 	},
 }
+
+-- Default: shows you a popup to activate the sprunk vending machine mod
+-- when approaching the Ten Green Bottles bar
+addEventHandler("onClientResourceStart", resourceRoot, function()
+	for i=1, #TP_DESTINATIONS do
+		local dest = TP_DESTINATIONS[i]
+		if dest then
+			local req_col = dest.req_col
+			local req_mods = dest.req_mods
+			if type(req_mods)=="table" and type(req_col)=="table" then
+				local col = req_col.col
+				if isElement(col) and #req_mods>0 then
+
+					local hit = req_col.hit
+					local leave = req_col.leave
+					if hit then
+						addEventHandler("onClientColShapeHit", col, function(el, md)
+							if el == localPlayer and md and getElementInterior(col) == getElementInterior(localPlayer) then
+								local enable = (hit == "enable" or false)
+								local list = {}
+								for i=1, #req_mods do
+									if (enable and not isModelReplaced(req_mods[i].id))
+									or ((not enable) and isModelReplaced(req_mods[i].id)) then
+										list[#list+1] = {id=req_mods[i].id, name=req_mods[i].name}
+									end
+								end
+								if #list > 0 then
+									triggerServerEvent("modDownloader:requestForceMods", root, localPlayer, list, {
+										enable = enable
+									})
+								end
+							end
+						end)
+					end
+					if leave then
+						addEventHandler("onClientColShapeLeave", col, function(el, md)
+							if el == localPlayer and md and getElementInterior(col) == getElementInterior(localPlayer) then
+								local enable = (hit == "enable" or false)
+								local list = {}
+								for i=1, #req_mods do
+									if (enable and not isModelReplaced(req_mods[i].id))
+									or ((not enable) and isModelReplaced(req_mods[i].id)) then
+										list[#list+1] = {id=req_mods[i].id, name=req_mods[i].name}
+									end
+								end
+								if #list > 0 then
+									triggerServerEvent("modDownloader:requestForceMods", root, localPlayer, list, {
+									enable = (leave == "enable" or false)
+									})
+								end
+							end
+						end)
+					end
+				end
+			end
+		end
+	end
+end)
 
 -- Used in permissions_client.lua
 function isPlayerInTPArea(modIdAffected)

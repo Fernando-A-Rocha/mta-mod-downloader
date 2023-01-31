@@ -23,18 +23,25 @@ local COLOR_BTN_BG_GREEN = 0xff2b6907
 local COLOR_BTN_BG_RED = 0xff690707
 local COLOR_BTN_BG_YELLOW = 0xff696907
 
+-- Internal events
 addEvent("modDownloader:openModPanel", true)
 addEvent("modDownloader:reenableModPanel", true)
 
+-- Constants
 local SW, SH = guiGetScreenSize()
 
+-- Variables
 local mainWindow = nil
+local requestWindow = nil
 local selectedTabName = nil
 local selectedRow = nil
-
 local lastGuiSpamEvent = nil
 
-local DGS = nil
+local DGS = nil -- DGS specific
+
+--[[
+    Mod Downloader Panel GUI
+]]
 
 addEventHandler("onClientResourceStart", resourceRoot, function()
 
@@ -452,6 +459,11 @@ function toggleGUIPanel()
         return
     end
 
+    -- Don't show the mod loader GUI main window if a request window is open
+    if isElement(requestWindow) then
+        return
+    end
+
     if lastGuiSpamEvent then
         if getTickCount() - lastGuiSpamEvent < getSetting("anti_spam_delay_gui_buttons") then
             outputCustomMessage(getSetting("msg_too_fast"), "error")
@@ -470,6 +482,172 @@ addEventHandler("modDownloader:openModPanel", localPlayer, function()
         showCursor(true)
     end
 end)
+
+--[[
+    Request/Force Mods
+]]
+local function closeRequestWindow()
+    if isElement(requestWindow) then
+        destroyElement(requestWindow)
+    end
+    requestWindow = nil
+    showCursor(false)
+end
+
+function openRequestToggleModsDialog(requestList, options)
+    
+    if DGS:dgsGetVisible(mainWindow) then
+        DGS:dgsSetVisible(mainWindow, false)
+    end
+
+    if isElement(requestWindow) then
+        destroyElement(requestWindow)
+    end
+
+    local enable = options.enable or false
+
+    local WW, WH = 800, 150
+    local glHeight = (#requestList * 25)
+    WH = WH + glHeight
+
+    requestWindow = DGS:dgsCreateWindow((SW-WW)/2, (SH-WH)/2, WW, WH, getSetting("gui_request_title"), false)
+    DGS:dgsSetProperty(requestWindow, "ignoreTitle", true) -- DGS specific
+    DGS:dgsWindowSetSizable(requestWindow, false)
+    DGS:dgsWindowSetMovable(requestWindow, false)
+
+    local x, y = 20, 30
+
+    local textDesc = getSetting("gui_request_enable")
+    if not enable then
+        textDesc = getSetting("gui_request_disable")
+    end
+    local textDescLines = (string.find(textDesc, "\n") or 0) + 1
+    local infoLabelHeight = (20 * textDescLines)
+
+    local infoLabel = DGS:dgsCreateLabel(x, y, WW-(x*2), infoLabelHeight, textDesc, false, requestWindow)
+    DGS:dgsLabelSetHorizontalAlign(infoLabel, "center", true)
+    DGS:dgsLabelSetVerticalAlign(infoLabel, "center")
+
+    y = y + infoLabelHeight + 10
+
+    glHeight = glHeight + 30
+
+    local gridlist = DGS:dgsCreateGridList(x, y, WW-(x*2), glHeight, false, requestWindow)
+    DGS:dgsSetProperty(gridlist, "columnTextColor", COLOR_COL_TEXT) -- DGS specific
+    
+    DGS:dgsGridListAddColumn(gridlist, getSetting("gui_grid_col_name"), 0.3)
+    DGS:dgsGridListAddColumn(gridlist, getSetting("gui_grid_col_replaces"), 0.25)
+    DGS:dgsGridListAddColumn(gridlist, getSetting("gui_grid_col_enabled"), 0.2)
+    DGS:dgsGridListAddColumn(gridlist, getSetting("gui_grid_col_ready"), 0.2)
+
+    for i=1, #requestList do
+        local mod = requestList[i]
+        if mod then
+            local row = DGS:dgsGridListAddRow(gridlist)
+            
+            DGS:dgsGridListSetItemText(gridlist, row, 1, mod.name, false, false)
+            DGS:dgsGridListSetItemData(gridlist, row, 1, mod.id)
+
+            DGS:dgsGridListSetItemText(gridlist, row, 2, mod.replaces, false, false)
+
+            if mod.activated then
+                DGS:dgsGridListSetItemText(gridlist, row, 3, getSetting("gui_yes"), false, false)
+                DGS:dgsGridListSetItemColor(gridlist, row, 3, 0, 255, 0)
+            else
+                DGS:dgsGridListSetItemText(gridlist, row, 3, getSetting("gui_no"), false, false)
+                DGS:dgsGridListSetItemColor(gridlist, row, 3, 255, 69, 69)
+            end
+            if not mod.pendingDownloads then
+                DGS:dgsGridListSetItemText(gridlist, row, 4, getSetting("gui_yes"), false, false)
+                DGS:dgsGridListSetItemColor(gridlist, row, 4, 0, 255, 0)
+            else
+                DGS:dgsGridListSetItemText(gridlist, row, 4, getSetting("gui_no"), false, false)
+                DGS:dgsGridListSetItemColor(gridlist, row, 4, 255, 69, 69)
+            end
+        end
+    end
+
+    y = y + glHeight + 10
+
+    local buttons = {}
+    local buttonPositions = {}
+    
+    if enable then
+        buttonPositions["enableall"] = {x, y, "FF00FF00"}
+    else
+        buttonPositions["disableall"] = {x, y, "ffff3c00"}
+    end
+
+    local function clickBtn()
+        local name
+        for k, v in pairs(buttonPositions) do
+            if source == buttons[k] then
+                name = k
+                break
+            end
+        end
+        if name == "enableall" or name == "disableall" then
+
+            if lastGuiSpamEvent then
+                if getTickCount() - lastGuiSpamEvent < getSetting("anti_spam_delay_gui_buttons") then
+                    outputCustomMessage(getSetting("msg_too_fast"), "error")
+                    return
+                end
+            end
+            lastGuiSpamEvent = getTickCount()
+    
+            local toToggle = {}
+            local total = DGS:dgsGridListGetRowCount(gridlist)
+            for row = 1, total do
+                local modId = DGS:dgsGridListGetItemData(gridlist, row, 1)
+                local modName = DGS:dgsGridListGetItemText(gridlist, row, 1)
+                local activated = DGS:dgsGridListGetItemText(gridlist, row, 3)
+                if activated == (name == "enableall" and getSetting("gui_no") or getSetting("gui_yes")) then
+                    toToggle[#toToggle+1] = {modId, modName}
+                end
+            end
+            if #toToggle > 0 then
+                local affected = 0
+                for i=1, #toToggle do
+                    local modId, modName = tonumber(toToggle[i][1]), toToggle[i][2]
+                    if (name == "enableall" and canEnableMod(modId) or canDisableMod(modId)) then
+                        if DGS:dgsGetEnabled(requestWindow) then
+                            DGS:dgsSetEnabled(requestWindow, false)
+                        end
+                        toggleModFromGUI(modId, modName, (name == "enableall" and true or false), false)
+                        affected = affected + 1
+                    end
+                end
+                if affected > 0 then
+                    closeRequestWindow()
+                    if name == "enableall" then
+                        outputCustomMessage(getSetting("msg_mod_activated_all").." ("..#toToggle..")", "success")
+                    else
+                        outputCustomMessage(getSetting("msg_mod_deactivated_all").." ("..#toToggle..")", "info")
+                    end
+                end
+            end
+        end
+    end
+    
+    for name, pos in pairs(buttonPositions) do
+        buttons[name] = DGS:dgsCreateButton(pos[1], pos[2], 100, 35, getSetting("gui_btn_"..name), false, requestWindow)
+        local DEFAULT_BTN_COLOR = DGS:dgsGetProperty(buttons[name], "color")
+        local GREEN_COLOR = {COLOR_BTN_BG_GREEN, DEFAULT_BTN_COLOR[2], DEFAULT_BTN_COLOR[3]}
+        local RED_COLOR = {COLOR_BTN_BG_RED, DEFAULT_BTN_COLOR[2], DEFAULT_BTN_COLOR[3]}
+        if name == "enableall" then
+            DGS:dgsSetProperty(buttons[name], "color", GREEN_COLOR)
+        else
+            DGS:dgsSetProperty(buttons[name], "color", RED_COLOR)
+        end
+        addEventHandler("onDgsMouseClickUp", buttons[name], clickBtn, false)
+    end
+
+    local closeButton = DGS:dgsCreateButton(WW-120, y, 100, 35, getSetting("gui_btn_close"), false, requestWindow)
+    addEventHandler("onDgsMouseClickUp", closeButton, closeRequestWindow, false)
+    
+    showCursor(true)
+end
 
 --[[
     Downloading dialog triggered by system_client.lua

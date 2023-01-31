@@ -7,6 +7,7 @@
 --]]
 
 addEvent("modDownloader:receiveMods", true)
+addEvent("modDownloader:forceMods", true)
 addEvent("modDownloader:onModelReplaced", true)
 addEvent("modDownloader:onModelRestored", true)
 
@@ -659,6 +660,72 @@ end)
 addEventHandler("modDownloader:onModelRestored", localPlayer, function(id, modName)
     -- outputDebugString("Model ID "..id.." has been restored, it had mod: "..modName, 3)
 end)
+
+addEventHandler("modDownloader:forceMods", localPlayer,
+    function(modList, options)
+        
+        if type(modList) ~= "table" then return end
+        if (not options) then
+            options = {}
+        elseif (type(options) ~= "table") then
+            outputDebugString("modDownloader:forceMods - options is not a table, assuming empty", 2)
+            options = {}
+        end
+        
+        local mods = getReceivedMods()
+        if not mods then
+            outputDebugString("modDownloader:forceMods - mods not received yet", 1)
+            return
+        end
+
+        local force = options.force or false
+        local enable = options.enable or false
+
+        local requestList = {}
+        for i=1, #modList do
+            local info = modList[i]
+            if info then
+        
+                local modId = info.id
+                local modName = info.name
+
+                local found = nil
+                for i=1, #mods do
+                    local mod = mods[i]
+                    if mod then
+                        if mod.id == modId then
+                            found = mod
+                            break
+                        end
+                    end
+                end
+                if not found then
+                    outputDebugString("modDownloader:forceMods - mod not found, ignoring: "..modId, 2)
+                    modList[modId] = nil
+                else
+                    if not ((enable and found.activated) or ((not enable) and (not found.activated))) then
+                        
+                        if (force == true) then
+                            toggleModFromGUI(modId, modName, enable, false)
+                        else
+                            requestList[#requestList+1] = {
+                                id=modId,
+                                replaces=found.replaces,
+                                name=modName,
+                                activated=found.activated,
+                                pendingDownloads=found.pendingDownloads,
+                            }
+                        end
+                    end
+                end
+            end
+        end
+
+        if #requestList == 0 then return end
+
+        openRequestToggleModsDialog(requestList, options)
+    end
+)
 
 local function handleReceiveMods(mods, settings)
 

@@ -1,5 +1,5 @@
 <meta>
-    <info version="1.2.0" author="Fernando" name="mta-mod-downloader" description="mod downloader system with graphical user interface" type="script" />
+    <info version="1.3.0" author="Fernando" name="mta-mod-downloader" description="mod downloader system with graphical user interface" type="script" />
     <min_mta_version client="1.5.9-9.21437.0" server="1.5.9-9.21437.0"></min_mta_version>
     
     <!-- DOCUMENTATION:
@@ -88,6 +88,10 @@
         <setting name="*gui_grid_col_ready" value="Ready" friendlyname="GUI text: Mod ready column" />
         <setting name="*gui_yes" value="Yes" friendlyname="GUI text: Yes" />
         <setting name="*gui_no" value="No" friendlyname="GUI text: No" />
+        <setting name="*gui_request_description" value="It is recommended that you activate/deactivate the following mods."></setting>
+        <setting name="*gui_request_disable" value="Message from the server: we recommend that you deactivate the following mods:"></setting>
+        <setting name="*gui_request_enable" value="Message from the server: we recommend that you activate the following mods:"></setting>
+        <setting name="*gui_request_title" value="Mod Requests"></setting>
     </settings>
     
     <!-- Main Scripts (Permissions) -->
@@ -103,14 +107,21 @@
     <!-- <script type="client" src="main/gui_client_dgs.lua" /> -->
     
     <!-- Main Exported Functions -->
+    <export type="shared" function="getSetting" />
+    
+    <export type="client" function="getReceivedMods" />
+    <export type="client" function="isModelReplaced" />
     <export type="client" function="canEnableMod" />
     <export type="client" function="canDisableMod" />
-    <export type="server" function="canPlayerOpenGUI" />
-    <export type="shared" function="getSetting" />
-    <export type="client" function="getReceivedMods" />
+    
     <export type="server" function="getLoadedMods" />
+    <export type="server" function="canPlayerOpenGUI" />
     <export type="server" function="sendModsToPlayer" />
-    <export type="client" function="isModelReplaced" />
+    <export type="server" function="requestForceModsPlayer" />
+    
+    <!-- (Optional) Testing scripts for the core scripts -->
+    <script type="client" src="main/testing_client.lua" />
+    <script type="server" src="main/testing_server.lua" />
     
     <!-- (Optional) Example usage scripts for a Teleportation system -->
     <script type="client" src="main/teleport_client.lua" />

@@ -53,8 +53,8 @@ Mods are organized in categories (each has a unique name) that will be displayed
 
 Each mod has the following attributes:
 
-- `name` - The name of the mod (must be unique)
-- `replace` - The ID that it will replace (e.g. 1 for skin 1)
+- `name` - The name of the mod (**must be unique**)
+- `replace` - The ID that it will replace (e.g. 1 for skin 1), see [ID lists below](#id-lists)
 - (optional) `dff` - The DFF file path (e.g. `mods/skin1.dff`)
 - (optional) `txd` - The TXD file path (e.g. `mods/skin1.txd`)
 - (optional) `col` - The COL file path (e.g. `mods/vendingmachine.col`), this is for objects
@@ -62,14 +62,6 @@ Each mod has the following attributes:
 - (optional) `activated_by_default` - Whether the mod is activated by default (true/false)
 - (optional) `encrypted` - Whether the mod is encrypted using [NandoCrypt](#nandocrypt) (true/false)
 - (optional) `permission_check` - The name of the serverside permission check function (e.g. `isPlayerAdmin(player)`)
-
-## Demo Implementation
-
-There is a [teleportation system](/mod_downloader/main/teleport_client.lua) included in the resource for demonstration purposes.
-
-It allows you to define locations that players can teleport to, and require certain mods to be loaded in order to teleport to them.
-
-You can code your own implementations using the functions and custom events available both client and server side.
 
 ## NandoCrypt
 
@@ -99,17 +91,35 @@ Additional permissions can be defined in [permissions_server.lua (e.g. isPlayerA
 
 ## Screenshots
 
+Default GUI:
+
 ![Screenshot](/.github/images/demo_gui.png)
-![Screenshot](/.github/images/demo_gui_dgs.png)
 ![Screenshot](/.github/images/demo_toggle.png)
+![Screenshot](/.github/images/demo_request.png)
+
+DGS GUI Version:
+
+![Screenshot](/.github/images/demo_gui_dgs.png)
+![Screenshot](/.github/images/demo_request_dgs.png)
+
+Demo TP System:
+
 ![Screenshot](/.github/images/demo_tpGUI.png)
 
-## Useful Links
+## ID Lists
 
 - [MTA:SA Vehicle IDs](https://wiki.multitheftauto.com/wiki/Vehicle_IDs)
 - [MTA:SA Skin IDs](https://wiki.multitheftauto.com/wiki/All_Skins_Page)
 - [MTA:SA Weapon IDs & Object Models](https://wiki.multitheftauto.com/wiki/Weapons)
 - [GTA:SA Object IDs](https://dev.prineside.com/gtasa_samp_model_id/?devtools_locale=en) (ignore the SA-MP IDs)
+
+## Demo & Examples
+
+There is a **teleportation system** included in the resource which allows you to define locations that players can teleport to, and require certain mods to be loaded in order to teleport to them. See [teleportat_client.lua](/mod_downloader/main/teleport_client.lua) for more information.
+
+There are also **testing commands** that can be used to test certain Mod Downloader features. See [testing_server.lua](/mod_downloader/main/testing_server.lua) for more information.
+
+**You can code your own implementations using the functions and custom events available both client and server side.**
 
 ## Credits
 

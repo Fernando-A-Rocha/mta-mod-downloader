@@ -32,7 +32,7 @@ end
 
 -- Handle permission changed => re-send the player's mods
 function handlePlayerLoginLogout(prevAcc, newAcc)
-    triggerEvent("modDownloader:requestRefreshMods", root, source)
+    triggerEvent("modDownloader:requestRefreshMods", root, source, true)
 end
 addEventHandler("onPlayerLogin", root, handlePlayerLoginLogout)
 addEventHandler("onPlayerLogout", root, handlePlayerLoginLogout)
