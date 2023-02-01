@@ -175,51 +175,6 @@ local function loadResSettings()
     addMissingSettings()
 end
 
-local WEAPON_OBJECT_IDS = {
-    [1] = 331, -- Brassknuckle
-    [2] = 333, -- Golfclub
-    [3] = 334, -- Nightstick
-    [4] = 335, -- Knife
-    [5] = 336, -- Bat
-    [6] = 337, -- Shovel
-    [7] = 338, -- Poolcue
-    [8] = 339, -- Katana
-    [9] = 341, -- Chainsaw
-    [22] = 346, -- Colt 45
-    [23] = 347, -- Silenced
-    [24] = 348, -- Deagle
-    [25] = 349, -- Shotgun
-    [26] = 350, -- Sawedoff
-    [27] = 351, -- Spas12
-    [28] = 352, -- Uzi
-    [29] = 353, -- MP5
-    [32] = 372, -- Tec9
-    [30] = 355, -- AK-47
-    [31] = 356, -- M4
-    [33] = 357, -- Country Rifle
-    [34] = 358, -- Sniper Rifle
-    [35] = 359, -- Rocket Launcher
-    [36] = 360, -- Heat-Seeking RPG
-    [37] = 361, -- Flamethrower
-    [38] = 362, -- Minigun
-    [16] = 342, -- Grenade
-    [17] = 343, -- Teargas
-    [18] = 344, -- Molotov
-    [39] = 363, -- Satchel
-    [41] = 365, -- Spraycan
-    [42] = 366, -- Fire Extinguisher
-    [43] = 367, -- Camera
-    [10] = 321, -- Dildo
-    [11] = 322, -- Dildo
-    [12] = 323, -- Vibrator
-    [14] = 325, -- Flowers
-    [15] = 326, -- Cane
-    [44] = 368, -- Nightvision Goggles
-    [45] = 369, -- Infrared Goggles
-    [46] = 371, -- Parachute
-    [40] = 364 -- Satchel Detonator
-}
-
 local function getNameFromModelID(id)
 
     local name
@@ -377,11 +332,6 @@ local function readModsFromMeta()
                                     return false, "Invalid attribute 'id' for mod node, expected number"
                                 else
                                     replaceID = tonumber(replaceID)
-                                end
-
-                                local weapObjectModel = WEAPON_OBJECT_IDS[replaceID]
-                                if weapObjectModel then
-                                    replaceID = weapObjectModel
                                 end
 
                                 local modName = xmlNodeGetAttribute(mod, "name")
