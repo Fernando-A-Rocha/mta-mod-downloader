@@ -10,26 +10,26 @@
     <mods>
         <category name="Weapons">
             <!-- You can use weapon IDs from https://wiki.multitheftauto.com/wiki/Weapons or the weapon object model IDs directly -->
-            <mod replace="24" name="Desert Eagle .50 (Gold)" dff="mods/Deagle.dff" txd="mods/Deagle_Gold.txd" activated_by_default="true" />
-            <mod replace="24" name="Desert Eagle .50 (Grey)" dff="mods/Deagle.dff" txd="mods/Deagle_Grey.txd" activated_by_default="false" />
+            <mod replace="24" name="Desert Eagle .50 (Gold)" dff="files/Deagle.dff" txd="files/Deagle_Gold.txd" activated_by_default="true" />
+            <mod replace="24" name="Desert Eagle .50 (Grey)" dff="files/Deagle.dff" txd="files/Deagle_Grey.txd" activated_by_default="false" />
         </category>
         <category name="Skins">
-            <mod replace="78" name="Bank Robber 1" dff="mods/Robber1.dff" txd="mods/Robber1.txd" activated_by_default="false" />
-            <mod replace="79" name="Bank Robber 2" dff="mods/Robber2.dff" txd="mods/Robber2.txd" activated_by_default="false" />
+            <mod replace="78" name="Bank Robber 1" dff="files/Robber1.dff" txd="files/Robber1.txd" activated_by_default="false" />
+            <mod replace="79" name="Bank Robber 2" dff="files/Robber2.dff" txd="files/Robber2.txd" activated_by_default="false" />
         </category>
         <category name="Vehicles">
-            <mod replace="400" name="Landstalker 98" dff="mods/landstalker.dff" txd="mods/landstalker.txd" activated_by_default="true" />
-            <mod replace="507" name="New Elegant" dff="mods/elegant.dff.nandocrypt" txd="mods/elegant.txd.nandocrypt" activated_by_default="true" encrypted="true" />
+            <mod replace="400" name="Landstalker 98" dff="files/landstalker.dff" txd="files/landstalker.txd" activated_by_default="true" />
+            <mod replace="507" name="New Elegant" dff="files/elegant.dff.nandocrypt" txd="files/elegant.txd.nandocrypt" activated_by_default="true" encrypted="true" />
             
             <!-- Special permission -->
-            <mod replace="426" name="Schafter" dff="mods/schafter.dff" txd="mods/schafter.txd" activated_by_default="true" permission_check="isPlayerAdmin" />
+            <mod replace="426" name="Schafter" dff="files/schafter.dff" txd="files/schafter.txd" activated_by_default="true" permission_check="isPlayerAdmin" />
         </category>
         <category name="Kickstart Arena" group_mods="true">
-            <mod replace="13642" name="Custom Rings" txd="mods/kickstart.txd" activated_by_default="false" />
-            <mod replace="13646" name="Custom Landing Pads" txd="mods/kickstart.txd" activated_by_default="false" />
+            <mod replace="13642" name="Custom Rings" txd="files/kickstart.txd" activated_by_default="false" />
+            <mod replace="13646" name="Custom Landing Pads" txd="files/kickstart.txd" activated_by_default="false" />
         </category>
         <category name="Objects">
-            <mod replace="955" name="Sprunk Vending Machine" dff="mods/sprunk.dff.nandocrypt" txd="mods/sprunk.txd.nandocrypt" lod_distance="300" activated_by_default="false" encrypted="true" />
+            <mod replace="955" name="Sprunk Vending Machine" dff="files/sprunk.dff.nandocrypt" txd="files/sprunk.txd.nandocrypt" lod_distance="300" activated_by_default="false" encrypted="true" />
         </category>
     </mods>
     
@@ -92,6 +92,8 @@
         <setting name="*gui_request_disable" value="Message from the server: we recommend that you deactivate the following mods:" />
         <setting name="*gui_request_enable" value="Message from the server: we recommend that you activate the following mods:" />
         <setting name="*gui_request_title" value="Mod Requests" />
+        <setting name="*storage_resource" value="file_storage"></setting>
+        <setting name="*default_file_auto_download" value="false"></setting>
     </settings>
     
     <!-- Main Scripts (Permissions) -->
@@ -135,26 +137,11 @@
     
     <!-- ACL permissions that this resource requires -->
     <aclrequest>
+        <right name="general.ModifyOtherObjects" access="true" />
         <right name="function.kickPlayer" access="true" />
         <right name="function.restartResource" access="true" />
+        <right name="function.stopResource" access="true" />
+        <right name="function.startResource" access="true" />
         <right name="function.fetchRemote" access="true" />
     </aclrequest>
-    
-    <!-- THE SCRIPT WILL AUTO-UPDATE THIS FILE AND INSERT NEW LINES BELOW -->
-    <file src="mods/schafter.txd" />
-    <file src="mods/schafter.dff" />
-    <file src="mods/landstalker.dff" download="false" />
-    <file src="mods/landstalker.txd" download="false" />
-    <file src="mods/elegant.dff.nandocrypt" download="false" />
-    <file src="mods/elegant.txd.nandocrypt" download="false" />
-    <file src="mods/sprunk.txd.nandocrypt" download="false" />
-    <file src="mods/sprunk.dff.nandocrypt" download="false" />
-    <file src="mods/Robber2.txd" download="false"></file>
-    <file src="mods/Robber1.dff" download="false"></file>
-    <file src="mods/Robber2.dff" download="false"></file>
-    <file src="mods/Robber1.txd" download="false"></file>
-    <file src="mods/Deagle.dff" download="false"></file>
-    <file src="mods/Deagle_Gold.txd" download="false"></file>
-    <file src="mods/Deagle_Grey.txd" download="false"></file>
-    <file src="mods/kickstart.txd" download="false"></file>
 </meta>

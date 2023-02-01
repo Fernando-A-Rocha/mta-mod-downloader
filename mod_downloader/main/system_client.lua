@@ -365,7 +365,8 @@ local function downloadFirstInQueue()
 	end
 end
 
-local function handleDownloadFinish(fileName, success)
+local function handleDownloadFinish(fileName, success, requestResource)
+    if requestResource ~= resource then return end
 	if not currDownloading then return end
 	local modId, modName, path, activateWhenDone = currDownloading[1], currDownloading[2], currDownloading[3], currDownloading[4]
 
@@ -398,7 +399,7 @@ local function handleDownloadFinish(fileName, success)
 		busyDownloading = false
 	end
 end
-addEventHandler("onClientFileDownloadComplete", resourceRoot, handleDownloadFinish)
+addEventHandler("onClientFileDownloadComplete", root, handleDownloadFinish)
 
 function downloadModFile(modId, modName, path, activateWhenDone)
 
