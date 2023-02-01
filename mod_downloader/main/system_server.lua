@@ -719,6 +719,6 @@ addEventHandler("modDownloader:onDownloadManyFails", resourceRoot, function(kick
 	outputSystemMessage(getPlayerName(client).." failed to download '"..path.."' (#"..modId.." - "..modName..") "..times.." times"..(kick and ", kicking." or "."))
 
     if kick == true then
-	    -- kickPlayer(client, "System", "Failed to download '"..path.."' (#"..modId.." - "..modName..") "..times.." times.")
+	    kickPlayer(client, "System", "Failed to download '"..path.."' (#"..modId.." - "..modName..") "..times.." times.")
     end
 end)
