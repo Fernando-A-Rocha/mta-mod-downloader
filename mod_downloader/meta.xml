@@ -136,6 +136,8 @@
     <!-- ACL permissions that this resource requires -->
     <aclrequest>
         <right name="function.kickPlayer" access="true" />
+        <right name="function.restartResource" access="true" />
+        <right name="function.fetchRemote" access="true" />
     </aclrequest>
     
     <!-- THE SCRIPT WILL AUTO-UPDATE THIS FILE AND INSERT NEW LINES BELOW -->
