@@ -47,7 +47,7 @@ SCAN_MODS = {
 	["object_names"] = false, -- e.g. shovel (real gta3.img name)   [these take longer to scan]
 }
 
--- Command to extract a model files from XXXX.img
+-- Command to extract model files from a XXXX.img container (GTA:SA version supported)
 COMMAND_EXTRACT_IMG = "smdlimg"
 
 -- Mod file download feature
