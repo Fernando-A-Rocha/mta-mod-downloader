@@ -182,12 +182,12 @@ local function scanModFiles(initial)
 		end
 		local newRes = createResource(STORAGE_RES_NAME, thisFolder)
 		if not newRes then
-			outputSystemMessage("Failed to create resource '"..STORAGE_RES_NAME.."'.")
+			outputSystemMsg("Failed to create resource '"..STORAGE_RES_NAME.."'.")
 			return
 		end
 		sres = newRes
 	end
-	
+
 	if not sres then
 		outputSystemMsg("Unexpected: File storage resource '"..STORAGE_RES_NAME.."' not found.")
 		return
@@ -328,7 +328,7 @@ addEventHandler("onResourceStart", resourceRoot, init)
 addEventHandler("modDownloaderSimple:onDownloadManyFails", resourceRoot, function(kick, times, modId, path)
     if not client then return end
 
-	outputSystemMessage(getPlayerName(client).." failed to download '"..path.."' (#"..modId..") "..times.." times"..(kick and ", kicking." or "."))
+	outputSystemMsg(getPlayerName(client).." failed to download '"..path.."' (#"..modId..") "..times.." times"..(kick and ", kicking." or "."))
 
     if kick == true then
 	    kickPlayer(client, "System", "Failed to download '"..path.."' (#"..modId..") "..times.." times.")
