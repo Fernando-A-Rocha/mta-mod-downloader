@@ -12,4 +12,6 @@ A node is removed from the meta.xml when it detects that the file no longer exis
     <file src="mods_simple/489.dff" download="false" added_by="mod_downloader_simple"></file>
     <file src="mods_simple/507.dff.nandocrypt" download="false" added_by="mod_downloader_simple"></file>
     <file src="mods_simple/507.txd.nandocrypt" download="false" added_by="mod_downloader_simple"></file>
+    <file src="mods_simple/1.dff" download="false" added_by="mod_downloader_simple"></file>
+    <file src="mods_simple/1.txd" download="false" added_by="mod_downloader_simple"></file>
 </meta>

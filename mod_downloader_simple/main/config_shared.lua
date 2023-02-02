@@ -17,8 +17,8 @@ DEFAULT_FILE_AUTO_DOWNLOAD = false
 
 SCAN_MODS = {
 	["vehicles"] = true,
-	-- ["skins"] = true,
-	-- ["objects"] = true,
+	["skins"] = true,
+	["objects"] = true,
 }
 
 -- Mod file download feature

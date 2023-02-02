@@ -6,6 +6,8 @@
 	/!\ UNLESS YOU KNOW WHAT YOU ARE DOING, NO NEED TO CHANGE THIS FILE /!\
 --]]
 
+local currentlyLoading = true
+local clientsWaiting = {}
 local loadedMods = {}
 
 local startedAt = nil
@@ -28,17 +30,34 @@ local function stopStorage()
     end
 end
 
+local function sendModsToPlayer(player)
+	triggerClientEvent(player, "modDownloaderSimple:receiveLoadedMods", player, loadedMods)
+end
+
+addEventHandler("onPlayerResourceStart", root, function(res)
+    if res == resource then
+        if currentlyLoading then
+            clientsWaiting[#clientsWaiting+1] = source
+        else
+            sendModsToPlayer(source)
+        end
+    end
+end)
+
 local function continueInit()
-    addEventHandler("onResourceStop", resourceRoot, stopStorage)
 	outputSystemMsg("Init finished, sending mods to clients")
 
-	local playersTable = getElementsByType("player")
-	for i=1, #playersTable do
-		local player = playersTable[i]
-		if player then
-			triggerClientEvent(player, "modDownloaderSimple:receiveLoadedMods", player, loadedMods)
-		end
-	end
+    addEventHandler("onResourceStop", resourceRoot, stopStorage)
+
+    currentlyLoading = nil
+
+	for i=1, #clientsWaiting do
+        local player = clientsWaiting[i]
+        if player and isElement(player) then
+            sendModsToPlayer(player)
+        end
+    end
+    clientsWaiting = nil
 end
 
 local function endScan()

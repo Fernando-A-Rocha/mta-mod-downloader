@@ -282,14 +282,7 @@ function downloadModFile(id, file)
     for i=1, #fileDLQueue do
         local v = fileDLQueue[i]
 		if v and v[1] == id then
-			local different = false
-			for theType, v in pairs(file) do
-				if v[2][theType] and v[2][theType].path ~= v.path then
-					different = true
-					break
-				end
-			end
-			if not different then
+			if v[2].path == file.path then
 				return
 			end
 		end
