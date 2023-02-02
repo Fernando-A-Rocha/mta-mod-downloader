@@ -11,7 +11,8 @@ local clientsWaiting = {}
 local loadedMods = {}
 
 local startedAt = nil
-local finishedScanning = nil
+local files = nil
+local finishedParsing = nil
 local insertFiles = nil
 local deleteFiles = nil
 
@@ -67,7 +68,12 @@ local function endScan()
 		cf = cf + 1
 	end
 
-	outputSystemMsg("Scanning finished after "..(getTickCount()-startedAt).." ms, found "..cf.." models to replace")
+	local elapsedMs = (getTickCount()-startedAt)
+	local elapsed = elapsedMs.." ms"
+	if elapsedMs > 1000 then
+		elapsed = math.floor(elapsedMs/1000).." s"
+	end
+	outputSystemMsg("Scanning finished after "..elapsed..", found "..cf.." models to replace")
 
 	local sres = getResourceFromName(STORAGE_RES_NAME)
 	if not sres then
@@ -153,7 +159,8 @@ local function endScan()
 		return outputSystemMsg("Could not start resource '"..sresPath.."'")
     end
 
-	finishedScanning = nil
+	finishedParsing = nil
+	files = nil
 	insertFiles = nil
 	deleteFiles = nil
 	startedAt = nil
@@ -161,16 +168,211 @@ local function endScan()
 	continueInit()
 end
 
-local function finishScanning(modType)
-	finishedScanning[modType] = true
-	outputSystemMsg("Finished scanning for "..modType)
+local function startScanning()
 
-	for theType, enabled in pairs(SCAN_MODS) do
-		if enabled and not finishedScanning[theType] then
-			return
+    local sresPath = ":"..STORAGE_RES_NAME.."/"
+	local sresMeta = sresPath.."meta.xml"
+	
+	startedAt = getTickCount()
+	outputSystemMsg("Started scanning for mod files in "..STORAGE_RES_NAME.." (this may take a while)")
+
+	local function findModFile(id, theType, value)
+		for i=1, #SCAN_FOLDERS do
+			local folder = SCAN_FOLDERS[i]
+			if folder then
+				local path = folder..value.."."..theType
+				local exists = fileExists(sresPath..path)
+				if (not exists) and (files[path]) then
+					deleteFiles[path] = true
+				elseif (exists) then
+					local dl = DEFAULT_FILE_AUTO_DOWNLOAD
+					if (not files[path]) then
+						insertFiles[path] = true
+					else
+						dl = files[path].download
+					end
+					if not loadedMods[id] then
+						loadedMods[id] = {}
+					end
+					loadedMods[id][theType] = {path=sresPath..path, encrypted=false, download=dl}
+				end
+				if not (exists) and (NANDO_CRYPT_ENABLED == true) then
+					path = path ..NANDO_CRYPT_EXTENSION
+					local exists = fileExists(sresPath..path)
+					if (not exists) and (files[path]) then
+						deleteFiles[path] = true
+					elseif (exists) then
+						local dl = DEFAULT_FILE_AUTO_DOWNLOAD
+						if (not files[path]) then
+							insertFiles[path] = true
+						else
+							dl = files[path].download
+						end
+						if not loadedMods[id] then
+							loadedMods[id] = {}
+						end
+						loadedMods[id][theType] = {path=sresPath..path, encrypted=true, download=dl}
+					end
+				end
+			end
 		end
 	end
-	endScan()
+
+	local skinModelNames
+	if SCAN_MODS["skin_names"] then
+		skinModelNames = getSkinModelNames()
+	end
+	local vehicleModelNames
+	if SCAN_MODS["vehicle_names"] then
+		vehicleModelNames = getVehicleModelNames()
+	end
+	local vehicleModelNamesNice
+	if SCAN_MODS["vehicle_nice_names"] then
+		vehicleModelNamesNice = getVehicleNiceNames()
+	end
+	local objectModelNames
+	if SCAN_MODS["object_names"] then
+		objectModelNames = getObjectModelNames()
+	end
+
+	Async:iterate(0, 18630, function(id)
+		if id <= 312 then
+			-- Skins
+			if SCAN_MODS["skin_ids"] then
+				findModFile(id, "dff", tostring(id))
+				findModFile(id, "txd", tostring(id))
+			end
+			if skinModelNames then
+				local v = skinModelNames[id]
+				if v then
+					for theType, name in pairs(v) do
+						findModFile(id, theType, name)
+					end
+				end
+			end
+
+		elseif id >= 400 and id <= 611 then
+			-- Vehicles
+			if SCAN_MODS["vehicle_ids"] then
+				findModFile(id, "dff", tostring(id))
+				findModFile(id, "txd", tostring(id))
+			end
+			if vehicleModelNames then
+				local v = vehicleModelNames[id]
+				if v then
+					for theType, name in pairs(v) do
+						findModFile(id, theType, name)
+					end
+				end
+			end
+			if vehicleModelNamesNice then
+				local name = vehicleModelNamesNice[id]
+				if name then
+					findModFile(id, "dff", name)
+					findModFile(id, "txd", name)
+				end
+			end
+
+		elseif id >= 321 then
+			-- Objects
+			 -- exclude unused/reserved for other purposes IDs
+			if not ((id>=374 and id<=614) or (id>=11682 and id<=12799) or (id>=15065 and id<=15999)) then
+				if SCAN_MODS["object_ids"] then
+					findModFile(id, "dff", tostring(id))
+					findModFile(id, "txd", tostring(id))
+					findModFile(id, "col", tostring(id))
+				end
+				if objectModelNames then
+					local v = objectModelNames[id]
+					if v then
+						for theType, name in pairs(v) do
+							findModFile(id, theType, name)
+						end
+					end
+				end
+			end
+		end
+	end, function()
+		endScan()
+	end)
+end
+
+local function finishParsingIMG(fn, imgc)
+	finishedParsing[fn] = true
+	
+	collectgarbage("collect")
+
+	local c = 0
+	for fn2, _ in pairs(finishedParsing) do
+		c = c + 1
+	end
+	if c == imgc then
+		outputSystemMsg("Finished parsing IMG files")
+		startScanning()
+	end
+end
+
+local function tryToFixResource(sres)
+	
+    local sresPath = ":"..STORAGE_RES_NAME.."/"
+	local sresMeta = sresPath.."meta.xml"
+
+    local sf = xmlLoadFile(sresMeta)
+    if not sf then
+		return outputSystemMsg("Failed to load file "..sresMeta)
+    end
+
+    local schildren = xmlNodeGetChildren(sf)
+    if not schildren then
+        xmlUnloadFile(sf)
+		return outputSystemMsg("Could not get children of "..sresMeta)
+    end
+
+	files = {}
+
+	local changed = false
+
+    for i=1, #schildren do
+        local v = schildren[i]
+        if v then
+            if xmlNodeGetName(v) == "file" then
+                local src = xmlNodeGetAttribute(v, "src")
+                if src then
+                    if files[src] then
+                        outputSystemMsg("Deleting duplicate file entry in "..sresMeta..": "..src)
+                        xmlDestroyNode(v)
+                    else
+                        local path = sresPath..src
+						if not fileExists(path) then
+							outputSystemMsg("Deleting missing file entry in "..sresMeta..": "..src)
+							xmlDestroyNode(v)
+							if not changed then
+								changed = true
+							end
+						else
+							files[src] = true
+						end
+                    end
+                end
+            end
+        end
+    end
+
+	if not xmlSaveFile(sf) then
+		outputSystemMsg("Failed to save "..sresMeta)
+	end
+
+	xmlUnloadFile(sf)
+
+	if changed then
+		if not refreshResources(false, sres) then
+			return outputSystemMsg("Failed to refresh resource "..STORAGE_RES_NAME)
+		end
+		outputSystemMsg("Resource "..STORAGE_RES_NAME.." was refreshed, restarting...")
+		return restartResource(resource)
+	end
+
+	outputSystemMsg("No files were deleted from "..sresMeta.."; the problem is likely something else.")
 end
 
 --[[
@@ -195,8 +397,8 @@ local function scanModFiles(initial)
 	end
 
 	if getResourceState(sres)=="failed to load" then
-		outputSystemMsg("Resource '"..sres.."' failed to load: "..getResourceLoadFailureReason(sres))
-		outputSystemMsg("Unfortunately you have to resolve the issues manually (typically edit its meta.xml)")
+		outputSystemMsg("Resource '"..STORAGE_RES_NAME.."' failed to load: "..getResourceLoadFailureReason(sres))
+		tryToFixResource(sres)
 		return
 	end
 
@@ -204,9 +406,6 @@ local function scanModFiles(initial)
 		outputSystemMsg("Unexpected: File storage resource '"..STORAGE_RES_NAME.."' not found.")
 		return
 	end
-
-	startedAt = getTickCount()
-	outputSystemMsg("Started scanning for mod files in "..STORAGE_RES_NAME.." (this may take a while)")
 
     local sresPath = ":"..STORAGE_RES_NAME.."/"
 	local sresMeta = sresPath.."meta.xml"
@@ -219,10 +418,10 @@ local function scanModFiles(initial)
     local schildren = xmlNodeGetChildren(sf)
     if not schildren then
         xmlUnloadFile(sf)
-        return false, "Could not get children of "..sresMeta
+		return outputSystemMsg("Could not get children of "..sresMeta)
     end
 
-    local files = {}
+	files = {}
 
     for i=1, #schildren do
         local v = schildren[i]
@@ -250,114 +449,138 @@ local function scanModFiles(initial)
 	xmlUnloadFile(sf)
 	
 	loadedMods = {}
-	finishedScanning = {}
 
 	insertFiles = {}
 	deleteFiles = {}
-	
 
-	local function findModFile(id, theType, value, encrypted)
-		local path = MODS_PATH..value.."."..theType
-		if (encrypted) then
-			path = path ..NANDO_CRYPT_EXTENSION
+	if not SCAN_MODS["img_files"] then
+		return startScanning()
+	end
+
+	local imgContainerFiles = {}
+
+	for i=1, #SCAN_FOLDERS do
+		local folder = SCAN_FOLDERS[i]
+		if folder then
+			for j=1, #IMG_FILE_NAMES do
+				local imgFn = IMG_FILE_NAMES[j]
+				if imgFn then
+					local path = folder..imgFn..".img"
+					local exists = fileExists(sresPath..path)
+					if (exists) then
+						imgContainerFiles[imgFn] = path
+					end
+				end
+			end
 		end
-		local exists = fileExists(sresPath..path)
-		if (not exists) and (files[path]) then
-			deleteFiles[path] = true
-		elseif (exists) then
-			local dl = DEFAULT_FILE_AUTO_DOWNLOAD
-			if (not files[path]) then
-				insertFiles[path] = true
+	end
+
+	local imgc = 0
+	for fn, _ in pairs(imgContainerFiles) do
+		imgc = imgc + 1
+	end
+
+
+	local function parseOneImgFile(imgContainer, fn, path, name)
+		local extension = string.sub(name, -4)
+		if not (extension == ".dff" or extension == ".txd" or extension == ".col") then
+			-- outputSystemMsg("      Unsupported file type: "..extension.." in "..fn..".img (expected .dff or .txd)")
+		else
+			local theType = "txd"
+			if extension == ".dff" then
+				theType = "dff"
+			elseif extension == ".col" then
+				theType = "col"
+			end
+			local nameNoExtension = string.sub(name, 1, -5)
+			if not nameNoExtension then
+				-- outputSystemMsg("      Failed to get name without extension: "..name.." in "..fn..".img")
 			else
-				dl = files[path].download
+				nameNoExtension = string.lower(nameNoExtension)
+				local id = getIdFromModelName(nameNoExtension, theType=="col" and "dff" or theType)
+				if not id then
+					-- outputSystemMsg("      Failed to get ID from model name: "..nameNoExtension.." in "..fn..".img")
+				else
+					path = path.."_files/"..name
+					local exists = fileExists(sresPath..path)
+					
+					local dl = DEFAULT_FILE_AUTO_DOWNLOAD
+					if (not files[path]) then
+						insertFiles[path] = true
+					else
+						dl = files[path].download
+					end
+					if not (exists) then
+
+						local f = fileCreate(sresPath..path)
+						if not f then
+							outputSystemMsg("Failed to create file: "..sresPath..path)
+							return
+						end
+						local content = imgContainer:getFile(name)
+						fileWrite(f, content)
+						fileClose(f)
+					else
+						-- TODO: checksum
+					end
+
+					if not loadedMods[id] then
+						loadedMods[id] = {}
+					end
+					loadedMods[id][theType] = {path=sresPath..path, encrypted=false, download=dl}
+				end
 			end
-			if not loadedMods[id] then
-				loadedMods[id] = {}
-			end
-			loadedMods[id][theType] = {path=sresPath..path, encrypted=encrypted, download=dl}
 		end
-		if (not exists) and (not encrypted) and (NANDO_CRYPT_ENABLED == true) then
-			findModFile(id, theType, value, true)
+	end
+
+	local function parseOneImgContainer(fn, path)
+		local imgContainer = engineLoadIMGContainer(sresPath..path)
+		if not (imgContainer or imgContainer.entriesCount) then
+			outputSystemMsg("Failed to parse IMG container: "..sresMeta)
+			return false
 		end
+		if imgContainer.version ~= "VER2" then
+			outputSystemMsg("Unsupported IMG container version: "..imgContainer.version.." in "..fn..".img (expected VER2)")
+			return false
+		end
+		local imgFiles = imgContainer:listFiles()
+		if imgContainer.entriesCount ~= #imgFiles then
+			outputSystemMsg("Entries count does not correspond to actual number of files in "..fn..".img")
+			return false
+		end
+		if imgContainer.entriesCount > 0 then
+			
+			outputSystemMsg("   Reading "..#imgFiles.." files from container: "..fn..".img ...")
+
+			Async:foreach(imgFiles, function(name)
+				parseOneImgFile(imgContainer, fn, path, name)
+			end, function()
+				outputSystemMsg("   Extracted "..#imgFiles.." files from container: "..fn..".img")
+				finishParsingIMG(fn, imgc)
+			end)
+		else
+			outputSystemMsg("   Container is empty: "..fn..".img")
+			finishParsingIMG(fn, imgc)
+		end
+
+		return true
 	end
 
-	if SCAN_MODS["skin_ids"] == true then
-		Async:iterate(0, 312, function(id)
-			-- exclude unused
-			if not (id == 3 or id == 4 or id == 5 or id == 6 or id == 8 or id == 42 or id == 65 or id == 76
-			or id == 86 or id == 119 or id == 149 or id == 208 or id == 273 or id == 289) then
-				for theType, _ in pairs({["dff"] = true, ["txd"] = true}) do
-					findModFile(id, theType, tostring(id))
-				end
-				if id == 312 then
-					finishScanning("skin_ids")
-				end
-			end
-		end)
-	end
-	if SCAN_MODS["skin_names"] == true then
-		Async:foreach2(getSkinModelNames(), function(info, id)
-			for theType, name in pairs(info) do
-				findModFile(id, theType, name)
-			end
-			if id == 312 then
-				finishScanning("skin_names")
-			end
-		end)
-	end
+	-- https://gtamods.com/wiki/IMG_archive
+	if imgc > 0 then
 
-	if SCAN_MODS["vehicle_ids"] == true then
-		Async:iterate(400, 611, function(id)
-			for theType, _ in pairs({["dff"] = true, ["txd"] = true}) do
-				findModFile(id, theType, tostring(id))
-			end
-			if id == 611 then
-				finishScanning("vehicle_ids")
-			end
-		end)
-	end
-	if SCAN_MODS["vehicle_names"] == true then
-		Async:foreach2(getVehicleModelNames(), function(info, id)
-			for theType, name in pairs(info) do
-				findModFile(id, theType, name)
-			end
-			if id == 611 then
-				finishScanning("vehicle_names")
-			end
-		end)
-	end
-	if SCAN_MODS["vehicle_nice_names"] == true then
-		Async:foreach2(getVehicleNiceNames(), function(name, id)
-			findModFile(id, "dff", name)
-			findModFile(id, "txd", name)
-			if id == 611 then
-				finishScanning("vehicle_nice_names")
-			end
-		end)
-	end
+		outputSystemMsg("Parsing "..imgc.." IMG containers in "..STORAGE_RES_NAME.." (this may take a while)")
+		
+		finishedParsing = {}
 
-	if SCAN_MODS["object_ids"] == true then
-		Async:iterate(321, 18630, function(id)
-			-- exclude unused
-			if not ((id >= 18631 and id <= 19999) or (id >= 11682 and id <= 12799) or (id >= 15065 and id <= 15999)) then
-				for theType, _ in pairs({["dff"] = true, ["txd"] = true, ["col"] = true}) do
-					findModFile(id, theType, tostring(id))
-				end
-				if id == 18630 then
-					finishScanning("object_ids")
-				end
+		for fn, path in pairs(imgContainerFiles) do
+			if not parseOneImgContainer(fn, path) then
+				finishParsingIMG(fn, imgc)
 			end
-		end)
-	end
-	if SCAN_MODS["object_names"] == true then
-		Async:foreach2(getObjectModelNames(), function(info, id)
-			for theType, name in pairs(info) do
-				findModFile(id, theType, name)
-			end
-			if id == 18630 then
-				finishScanning("object_names")
-			end
-		end)
+		end
+	else
+		outputSystemMsg("No IMG containers found in "..STORAGE_RES_NAME)
+		startScanning()
 	end
 end
 

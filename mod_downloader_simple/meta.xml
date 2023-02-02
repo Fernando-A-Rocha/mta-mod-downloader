@@ -1,6 +1,7 @@
 <meta>
     <info version="1.3.0" author="Fernando" name="mta-mod-downloader-simple" description="simple mod downloader system that detects files by model id or name" type="script" />
     <min_mta_version client="1.5.9-9.21437.0" server="1.5.9-9.21437.0"></min_mta_version>
+    <oop>true</oop>
     
     <!-- DOCUMENTATION:
         https://github.com/Fernando-A-Rocha/mta-mod-downloader#readme
@@ -8,6 +9,7 @@
     
     <!-- Main Scripts (System) -->
     <script type="shared" src="main/config_shared.lua" />
+    <script type="shared" src="main/loadimg_shared.lua" />
     <script type="client" src="main/system_client.lua" />
     <script type="server" src="main/async_server.lua" />
     <script type="server" src="main/names_server.lua" />
