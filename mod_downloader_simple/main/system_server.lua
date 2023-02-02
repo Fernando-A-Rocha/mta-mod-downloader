@@ -312,7 +312,7 @@ local function scanModFiles()
 	end, function()
 		
 		local cf = 0
-		for id, files in pairs(loadedMods) do
+		for id, _ in pairs(loadedMods) do
 			cf = cf + 1
 		end
 
