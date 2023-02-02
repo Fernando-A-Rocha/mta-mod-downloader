@@ -36,12 +36,13 @@ Check [this README file](/.github/mod_downloader/README.md) for more information
 
 ### `mod_downloader_simple` (Simplified Version)
 
-This version simplifies model replacement. There is no GUI and it allows you to simply drag & drop your mods into the `mods_simple` folder of the `file_storage` resource. The mods need to be named as follows:
+This version simplifies model replacement. There is no GUI and it allows you to simply drag & drop your mods into the `mods_simple` folder of the `file_storage` resource. The mod files need to be named as follows:
 
-- ID.txd / ID.dff / ID.col (e.g. 400.dff)
-- model_name.txd / model_name.dff / model_name.col (e.g. ryder.dff)
+- ID.txd (e.g. 400.txd)
+- ID.dff (e.g. 400.dff)
+- ID.col (e.g. 1337.col) - only for objects
 
-See the [ID & model names](/.github/IDS_NAMES.md) page for all vehicle, skin, weapon and object IDs/names.
+See the [model IDs](/.github/MODEL_IDS.md) page for all vehicle, skin, weapon and object IDs.
 
 Check [this README file](/.github/mod_downloader_simple/README.md) for more information.
 

@@ -7,7 +7,7 @@
 --]]
 
 local function outputUpdaterInfo(msg)
-    outputServerLog("[MDL Updater] "..msg)
+    outputServerLog("[S-MDL Updater] "..msg)
 end
 
 local function fetchLatestCallback(data, info)

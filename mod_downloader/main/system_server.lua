@@ -1,7 +1,7 @@
 --[[
 	Author: https://github.com/Fernando-A-Rocha
 
-	server.lua
+	system_server.lua
 
 	/!\ UNLESS YOU KNOW WHAT YOU ARE DOING, NO NEED TO CHANGE THIS FILE /!\
 --]]
@@ -12,7 +12,7 @@ addEvent("modDownloader:requestForceMods", true)
 addEvent("modDownloader:onDownloadManyFails", true)
 
 local function outputSystemMessage(msg)
-    outputServerLog("[Mod Downloader] "..tostring(msg))
+    outputServerLog("[MDL] "..tostring(msg))
 end
 
 local currentlyLoading = true
@@ -446,10 +446,14 @@ local function readModsFromMeta()
     xmlUnloadFile(f)
 
     local ic = 0
+    local dc = 0
     for k, _ in pairs(insertFiles) do
         ic = ic + 1
     end
-    if ic > 0 then
+    for k, _ in pairs(deleteFiles) do
+        dc = dc + 1
+    end
+    if ic > 0 or dc > 0 then
 
         sf = xmlLoadFile(sresPath.."meta.xml")
         if not sf then

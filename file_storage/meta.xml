@@ -8,20 +8,8 @@ A node is removed from the meta.xml when it detects that the file no longer exis
 
 <meta>
     <!-- Everything below is to be managed by the resource writing to this file -->
-    <file src="files/kickstart.txd" download="false" added_by="mod_downloader"></file>
-    <file src="files/Robber1.txd" download="false" added_by="mod_downloader"></file>
-    <file src="files/sprunk.dff.nandocrypt" download="false" added_by="mod_downloader"></file>
-    <file src="files/sprunk.txd.nandocrypt" download="false" added_by="mod_downloader"></file>
-    <file src="files/Deagle_Gold.txd" download="false" added_by="mod_downloader"></file>
-    <file src="files/schafter.txd" download="false" added_by="mod_downloader"></file>
-    <file src="files/elegant.dff.nandocrypt" download="false" added_by="mod_downloader"></file>
-    <file src="files/Robber1.dff" download="false" added_by="mod_downloader"></file>
-    <file src="files/Robber2.dff" download="false" added_by="mod_downloader"></file>
-    <file src="files/landstalker.txd" download="false" added_by="mod_downloader"></file>
-    <file src="files/Deagle_Grey.txd" download="false" added_by="mod_downloader"></file>
-    <file src="files/elegant.txd.nandocrypt" download="false" added_by="mod_downloader"></file>
-    <file src="files/landstalker.dff" download="false" added_by="mod_downloader"></file>
-    <file src="files/Robber2.txd" download="false" added_by="mod_downloader"></file>
-    <file src="files/schafter.dff" download="false" added_by="mod_downloader"></file>
-    <file src="files/Deagle.dff" download="false" added_by="mod_downloader"></file>
+    <file src="mods_simple/489.txd" download="false" added_by="mod_downloader_simple"></file>
+    <file src="mods_simple/489.dff" download="false" added_by="mod_downloader_simple"></file>
+    <file src="mods_simple/507.dff.nandocrypt" download="false" added_by="mod_downloader_simple"></file>
+    <file src="mods_simple/507.txd.nandocrypt" download="false" added_by="mod_downloader_simple"></file>
 </meta>

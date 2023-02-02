@@ -26,7 +26,7 @@ Mods are organized in categories (each has a unique name) that will be displayed
 Each mod has the following attributes:
 
 - `name` - The name of the mod (**must be unique**)
-- `replace` - The ID that it will replace (e.g. 1 for skin 1), see [ID & model names](/.github/IDS_NAMES.md)
+- `replace` - The ID that it will replace (e.g. 1 for skin 1), see [model IDs](/.github/MODEL_IDS.md)
 - (optional) `dff` - The DFF file path (e.g. `mods/skin1.dff`)
 - (optional) `txd` - The TXD file path (e.g. `mods/skin1.txd`)
 - (optional) `col` - The COL file path (e.g. `mods/vendingmachine.col`), this is for objects
