@@ -204,10 +204,20 @@ local function readModsFromMeta()
     end
 
     local sresName = getSetting("storage_resource")
+    
     local sres = getResourceFromName(sresName)
-    if not sres then
-        return false, "Storage resource '"..sresName.."' not found"
-    end
+	if not sres then
+		local thisFolder = getResourceOrganizationalPath(resource)
+		if thisFolder == "" then
+			thisFolder = nil
+		end
+		local newRes = createResource(sresName, thisFolder)
+		if not newRes then
+			return false, "Failed to create resource '"..sresName.."'."
+		end
+		sres = newRes
+	end
+
     local sresPath = ":"..sresName.."/"
 
     local sf = xmlLoadFile(sresPath.."meta.xml")

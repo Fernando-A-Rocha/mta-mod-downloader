@@ -71,7 +71,7 @@ local function endScan()
 
 	local sres = getResourceFromName(STORAGE_RES_NAME)
 	if not sres then
-		outputSystemMsg("File storage resource '"..STORAGE_RES_NAME.."' not found. Please install it and restart the server.")
+		outputSystemMsg("Unexpected: File storage resource '"..STORAGE_RES_NAME.."' not found.")
 		return
 	end
     local sresPath = ":"..STORAGE_RES_NAME.."/"
@@ -176,7 +176,20 @@ local function scanModFiles(initial)
 
 	local sres = getResourceFromName(STORAGE_RES_NAME)
 	if not sres then
-		outputSystemMsg("File storage resource '"..STORAGE_RES_NAME.."' not found. Please install it and restart the server.")
+		local thisFolder = getResourceOrganizationalPath(resource)
+		if thisFolder == "" then
+			thisFolder = nil
+		end
+		local newRes = createResource(STORAGE_RES_NAME, thisFolder)
+		if not newRes then
+			outputSystemMessage("Failed to create resource '"..STORAGE_RES_NAME.."'.")
+			return
+		end
+		sres = newRes
+	end
+	
+	if not sres then
+		outputSystemMsg("Unexpected: File storage resource '"..STORAGE_RES_NAME.."' not found.")
 		return
 	end
     local sresPath = ":"..STORAGE_RES_NAME.."/"
