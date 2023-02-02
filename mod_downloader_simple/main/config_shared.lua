@@ -6,6 +6,10 @@
 	General Configuration File
 --]]
 
+-- Client & Server debug/info messages
+DEBUG_ENABLED = true
+MESSAGES_PREFIX = "[SMDL] "
+
 -- File storage resource name
 -- Place mod files inside this resource in the folder specificed below
 STORAGE_RES_NAME = "file_storage"
@@ -15,6 +19,10 @@ STORAGE_RES_NAME = "file_storage"
 SCAN_FOLDERS = {
 	"mods_simple/",
 }
+
+-- Command to re-scan for mod files
+-- Can be executed by logged in admins and in Server Console
+COMMAND_RESCAN = "smdlscan"
 
 -- Insert file nods in meta.xml with download="false"
 DEFAULT_FILE_AUTO_DOWNLOAD = false
@@ -37,18 +45,6 @@ SCAN_MODS = {
 	["vehicle_names"] = true, -- e.g. landstal (real gta3.img name)
 	["vehicle_nice_names"] = true, -- e.g. ambulance (pretty name) and not ambulan (real gta3.img name)
 	["object_names"] = false, -- e.g. shovel (real gta3.img name)   [these take longer to scan]
-
-	--[[
-		Look for IMG files (see the valid file names below)
-	]]
-	["img_files"] = true,
-}
-
--- Default GTA:SA IMG container names to replace DFF & TXD models
--- e.g. a container named "gta3.img" containing "infernus.dff" and "infernus.txd" will replace the Infernus models
-IMG_FILE_NAMES = {
-	"cutscene", "gta3", "gta_int"
-	-- "player": you can't replace clothes by replacing DFF/TXD, use shaders instead
 }
 
 -- Mod file download feature

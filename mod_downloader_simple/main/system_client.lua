@@ -24,6 +24,18 @@ function getReceivedMods()
 	return receivedMods
 end
 
+local function outputDebugMsg(msg, theType)
+    if (not DEBUG_ENABLED) then return end
+	msg = MESSAGES_PREFIX..msg
+    local r,g,b = 255, 255, 255
+    if theType == "ERROR" then
+        r,g,b = 255, 25, 25
+    elseif theType == "WARNING" then
+        r,g,b = 255, 255, 25
+    end
+    outputDebugString(msg, 4, r,g,b)
+end
+
 local function applyModInOrder(id, files, theType, lastType)
 	local path = files[theType].path
 	local encrypted = files[theType].encrypted
@@ -92,14 +104,14 @@ local function applyModInOrder(id, files, theType, lastType)
 
     if (encrypted) then
         if not NANDO_CRYPT_ENABLED then
-            outputDebugString("[S-MDL] NandoCrypt is not enabled, but you are trying to decrypt a file", 1)
+            outputDebugMsg("NandoCrypt is not enabled, but you are trying to decrypt a file", "ERROR")
         else
             if not ncDecryptFunction(path,
                 function(data)
                     applyOneMod(data)
                 end
             ) then
-                outputDebugString("[S-MDL] NandoCrypt - Failed to decrypt file: "..tostring(path), 1)
+                outputDebugMsg("NandoCrypt - Failed to decrypt file: "..tostring(path), "ERROR")
             end
         end
     else
@@ -223,7 +235,7 @@ local function downloadFirstInQueue()
 
 	local path = file.path
 	if not downloadFile(path) then
-		outputDebugString("[S-MDL] Error trying to download file: "..tostring(path), 1)
+		outputDebugMsg("Error trying to download file: "..tostring(path), "ERROR")
 
         local result = onDownloadFailed(id, path)
 		if result == "KICKED" then
@@ -254,7 +266,7 @@ local function handleDownloadFinish(fileName, success, requestResource)
 	local waitDelay = 50
 	if not success then
 
-		outputDebugString("[S-MDL] Failed to download mod file: "..tostring(fileName), 1)
+		outputDebugMsg("Failed to download mod file: "..tostring(fileName), "ERROR")
 		
         local result = onDownloadFailed(id, path)
 		if result == "KICKED" then
@@ -328,16 +340,13 @@ local function receiveLoadedMods(modList)
         local ncDecryptFunctionName = NANDO_CRYPT_FUNCTION
         local ncDecrypt = _G[ncDecryptFunctionName]
         if type(ncDecrypt) ~= "function" then
-            return outputDebugString("[S-MDL] NandoCrypt: Decrypt function '"..ncDecryptFunctionName.."' not loaded", 1)
+            return outputDebugMsg("NandoCrypt: Decrypt function '"..ncDecryptFunctionName.."' not loaded", "ERROR")
         end
         ncDecryptFunction = ncDecrypt
     end
 
-	if type(receivedMods) == "table" then
-        -- receiving updates
-        for id, files in pairs(receivedMods) do
-            restoreReplacedModel(id)
-        end
+    for id, files in pairs(receivedMods) do
+        restoreReplacedModel(id)
     end
 
 	receivedMods = modList
@@ -347,8 +356,8 @@ end
 addEventHandler("modDownloaderSimple:receiveLoadedMods", localPlayer, receiveLoadedMods)
 
 addEventHandler("modDownloaderSimple:onModelReplaced", localPlayer, function(id)
-    outputDebugString("Model ID "..id.." successfully replaced", 3)
+    outputDebugMsg("Model ID "..id.." successfully replaced")
 end)
 addEventHandler("modDownloaderSimple:onModelRestored", localPlayer, function(id)
-    outputDebugString("Model ID "..id.." has been restored", 3)
+    outputDebugMsg("Model ID "..id.." has been restored")
 end)

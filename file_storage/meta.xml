@@ -9,11 +9,11 @@ A node is removed from the meta.xml when it detects that the file no longer exis
 <meta>
     <!-- Everything below is to be managed by the resource writing to this file -->
     <file src="mods_simple/truth.dff" download="false" added_by="mod_downloader_simple"></file>
+    <file src="mods_simple/sentinel.txd" download="false" added_by="mod_downloader_simple"></file>
     <file src="mods_simple/truth.txd" download="false" added_by="mod_downloader_simple"></file>
+    <file src="mods_simple/sentinel.dff" download="false" added_by="mod_downloader_simple"></file>
     <file src="mods_simple/507.txd.nandocrypt" download="false" added_by="mod_downloader_simple"></file>
-    <file src="mods_simple/507.dff.nandocrypt" download="false" added_by="mod_downloader_simple"></file>
     <file src="mods_simple/489.txd" download="false" added_by="mod_downloader_simple"></file>
     <file src="mods_simple/489.dff" download="false" added_by="mod_downloader_simple"></file>
-    <file src="mods_simple/gta3.img_files/sentinel.dff" download="false" added_by="mod_downloader_simple"></file>
-    <file src="mods_simple/gta3.img_files/sentinel.txd" download="false" added_by="mod_downloader_simple"></file>
+    <file src="mods_simple/507.dff.nandocrypt" download="false" added_by="mod_downloader_simple"></file>
 </meta>

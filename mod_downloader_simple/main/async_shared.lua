@@ -1,5 +1,6 @@
 -- https://github.com/inlife/mta-lua-async
 -- Modified for https://github.com/Fernando-A-Rocha/mta-mod-downloader
+--      Added foreachPairs
 local function loadClass()
     ---------
     -- Start of slither.lua dependency
@@ -425,6 +426,33 @@ class "_Async" {
 
         self:switch();
     end,
+
+    -- Iterate over array (foreach cycle using pairs)
+    foreachPairs = function(self, array, func, callback)
+        self:add(function()
+            local a = getTickCount();
+            local lastresume = getTickCount();
+            for k,v in pairs(array) do
+                func(v,k);
+
+                -- int getTickCount() 
+                -- (GTA:MTA server scripting function)
+                -- For other environments use alternatives.
+                if getTickCount() > lastresume + self.maxtime then
+                    coroutine.yield()
+                    lastresume = getTickCount()
+                end
+            end
+            if (self.debug) then
+                outputDebugString("[DEBUG]Async foreachPairs: " .. (getTickCount() - a) .. "ms");
+            end
+            if (callback) then
+                callback();
+            end
+        end);
+
+        self:switch();
+    end,
 }
 
 -- Async Singleton wrapper
@@ -456,4 +484,8 @@ end
 
 function Async:foreach(...)
     getInstance():foreach(...);
+end
+
+function Async:foreachPairs(...)
+    getInstance():foreachPairs(...);
 end
