@@ -85,6 +85,10 @@ local function endScan()
     for k, _ in pairs(deleteFiles) do
         dc = dc + 1
     end
+
+	outputSystemMsg("Inserting "..ic.." file nodes in "..sresMeta)
+	outputSystemMsg("Deleting "..dc.." file nodes in "..sresMeta)
+
     if ic > 0 or dc > 0 then
 
         sf = xmlLoadFile(sresMeta)
@@ -161,18 +165,20 @@ local function finishScanning(modType)
 	finishedScanning[modType] = true
 	outputSystemMsg("Finished scanning for "..modType)
 
-	for theType, _ in pairs({["skins"]=true, ["vehicles"]=true, ["objects"]=true}) do
-		if SCAN_MODS[theType] == true and not finishedScanning[theType] then
+	for theType, enabled in pairs(SCAN_MODS) do
+		if enabled and not finishedScanning[theType] then
 			return
 		end
 	end
 	endScan()
 end
 
+--[[
+	This function will scan the given folder for files that match certain patterns.
+	It uses the Async library to make the fileExists calls happen in parallel.
+	This prevents freezing the server while scanning.
+]]
 local function scanModFiles(initial)
-
-	startedAt = getTickCount()
-	outputSystemMsg("Started scanning for mod files in "..STORAGE_RES_NAME.." (this may take a while)")
 
 	local sres = getResourceFromName(STORAGE_RES_NAME)
 	if not sres then
@@ -188,10 +194,20 @@ local function scanModFiles(initial)
 		sres = newRes
 	end
 
+	if getResourceState(sres)=="failed to load" then
+		outputSystemMsg("Resource '"..sres.."' failed to load: "..getResourceLoadFailureReason(sres))
+		outputSystemMsg("Unfortunately you have to resolve the issues manually (typically edit its meta.xml)")
+		return
+	end
+
 	if not sres then
 		outputSystemMsg("Unexpected: File storage resource '"..STORAGE_RES_NAME.."' not found.")
 		return
 	end
+
+	startedAt = getTickCount()
+	outputSystemMsg("Started scanning for mod files in "..STORAGE_RES_NAME.." (this may take a while)")
+
     local sresPath = ":"..STORAGE_RES_NAME.."/"
 	local sresMeta = sresPath.."meta.xml"
 
@@ -224,17 +240,7 @@ local function scanModFiles(initial)
                         else
                             download = true
                         end
-						if string.sub(src, 1, string.len(MODS_PATH)) == MODS_PATH then
-							local id = tonumber(string.sub(src, string.len(MODS_PATH)+1, string.len(src)-4))
-							if id then
-								files[src] = {download=download}
-							else
-								id = tonumber(string.sub(src, string.len(MODS_PATH)+1, string.len(src)-4-string.len(NANDO_CRYPT_EXTENSION)))
-								if id then
-									files[src] = {download=download}
-								end
-							end
-						end
+						files[src] = {download=download}
                     end
                 end
             end
@@ -250,68 +256,106 @@ local function scanModFiles(initial)
 	deleteFiles = {}
 	
 
-	local function findModFile(id, theType)
-		local path = MODS_PATH..id.."."..theType
-		local pathNc = path..NANDO_CRYPT_EXTENSION
-		local exists = fileExists(sresPath..path)
-		local encrypted = false
-		if not exists and (NANDO_CRYPT_ENABLED) then
-			path = pathNc
-			exists = fileExists(sresPath..path)
-			encrypted = true
+	local function findModFile(id, theType, value, encrypted)
+		local path = MODS_PATH..value.."."..theType
+		if (encrypted) then
+			path = path ..NANDO_CRYPT_EXTENSION
 		end
+		local exists = fileExists(sresPath..path)
 		if (not exists) and (files[path]) then
 			deleteFiles[path] = true
-		elseif (exists) and (not files[path]) then
-			insertFiles[path] = true
+		elseif (exists) then
+			local dl = DEFAULT_FILE_AUTO_DOWNLOAD
+			if (not files[path]) then
+				insertFiles[path] = true
+			else
+				dl = files[path].download
+			end
 			if not loadedMods[id] then
 				loadedMods[id] = {}
 			end
-			loadedMods[id][theType] = {path=sresPath..path, encrypted=encrypted, download=DEFAULT_FILE_AUTO_DOWNLOAD}
-		elseif (exists) and (files[path]) then
-			if not loadedMods[id] then
-				loadedMods[id] = {}
-			end
-			loadedMods[id][theType] = {path=sresPath..path, encrypted=encrypted, download=files[path].download}
+			loadedMods[id][theType] = {path=sresPath..path, encrypted=encrypted, download=dl}
+		end
+		if (not exists) and (not encrypted) and (NANDO_CRYPT_ENABLED == true) then
+			findModFile(id, theType, value, true)
 		end
 	end
 
-	if SCAN_MODS["skins"] == true then
+	if SCAN_MODS["skin_ids"] == true then
 		Async:iterate(0, 312, function(id)
 			-- exclude unused
 			if not (id == 3 or id == 4 or id == 5 or id == 6 or id == 8 or id == 42 or id == 65 or id == 76
 			or id == 86 or id == 119 or id == 149 or id == 208 or id == 273 or id == 289) then
 				for theType, _ in pairs({["dff"] = true, ["txd"] = true}) do
-					findModFile(id, theType)
+					findModFile(id, theType, tostring(id))
 				end
 				if id == 312 then
-					finishScanning("skins")
+					finishScanning("skin_ids")
 				end
 			end
 		end)
 	end
-
-	if SCAN_MODS["vehicles"] == true then
-		Async:iterate(400, 611, function(id)
-			for theType, _ in pairs({["dff"] = true, ["txd"] = true}) do
-				findModFile(id, theType)
+	if SCAN_MODS["skin_names"] == true then
+		Async:foreach2(getSkinModelNames(), function(info, id)
+			for theType, name in pairs(info) do
+				findModFile(id, theType, name)
 			end
-			if id == 611 then
-				finishScanning("vehicles")
+			if id == 312 then
+				finishScanning("skin_names")
 			end
 		end)
 	end
 
-	if SCAN_MODS["objects"] == true then
+	if SCAN_MODS["vehicle_ids"] == true then
+		Async:iterate(400, 611, function(id)
+			for theType, _ in pairs({["dff"] = true, ["txd"] = true}) do
+				findModFile(id, theType, tostring(id))
+			end
+			if id == 611 then
+				finishScanning("vehicle_ids")
+			end
+		end)
+	end
+	if SCAN_MODS["vehicle_names"] == true then
+		Async:foreach2(getVehicleModelNames(), function(info, id)
+			for theType, name in pairs(info) do
+				findModFile(id, theType, name)
+			end
+			if id == 611 then
+				finishScanning("vehicle_names")
+			end
+		end)
+	end
+	if SCAN_MODS["vehicle_nice_names"] == true then
+		Async:foreach2(getVehicleNiceNames(), function(name, id)
+			findModFile(id, "dff", name)
+			findModFile(id, "txd", name)
+			if id == 611 then
+				finishScanning("vehicle_nice_names")
+			end
+		end)
+	end
+
+	if SCAN_MODS["object_ids"] == true then
 		Async:iterate(321, 18630, function(id)
 			-- exclude unused
 			if not ((id >= 18631 and id <= 19999) or (id >= 11682 and id <= 12799) or (id >= 15065 and id <= 15999)) then
 				for theType, _ in pairs({["dff"] = true, ["txd"] = true, ["col"] = true}) do
-					findModFile(id, theType)
+					findModFile(id, theType, tostring(id))
 				end
 				if id == 18630 then
-					finishScanning("objects")
+					finishScanning("object_ids")
 				end
+			end
+		end)
+	end
+	if SCAN_MODS["object_names"] == true then
+		Async:foreach2(getObjectModelNames(), function(info, id)
+			for theType, name in pairs(info) do
+				findModFile(id, theType, name)
+			end
+			if id == 18630 then
+				finishScanning("object_names")
 			end
 		end)
 	end

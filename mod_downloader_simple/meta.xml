@@ -10,6 +10,7 @@
     <script type="shared" src="main/config_shared.lua" />
     <script type="client" src="main/system_client.lua" />
     <script type="server" src="main/async_server.lua" />
+    <script type="server" src="main/names_server.lua" />
     <script type="server" src="main/system_server.lua" />
     
     <!-- (Optional) NandoCrypt decrypter script -->
