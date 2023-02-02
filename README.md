@@ -30,7 +30,9 @@ MTA forum topic: [Link](https://forum.multitheftauto.com/topic/139565-rel-mod-do
 
 If you need help with anything related to this project, please read the corresponding section on the MTA forum thread linked above.
 
-## Setup
+## Tutorial
+
+Below is everything you need to know about how to install, use and customize the `mod_downloader` resource.
 
 **Installation** is very simple:
 
@@ -54,7 +56,7 @@ Mods are organized in categories (each has a unique name) that will be displayed
 Each mod has the following attributes:
 
 - `name` - The name of the mod (**must be unique**)
-- `replace` - The ID that it will replace (e.g. 1 for skin 1), see [ID lists below](#id-lists)
+- `replace` - The ID that it will replace (e.g. 1 for skin 1), see [model IDs](/.github/MODEL_IDS.md)
 - (optional) `dff` - The DFF file path (e.g. `mods/skin1.dff`)
 - (optional) `txd` - The TXD file path (e.g. `mods/skin1.txd`)
 - (optional) `col` - The COL file path (e.g. `mods/vendingmachine.col`), this is for objects
@@ -69,10 +71,10 @@ You can use [NandoCrypt (GitHub repository)](https://github.com/Fernando-A-Rocha
 
 The default setup comes with a few encrypted mods and a ready to use `nando_decrypter` client script.
 
-## Reminders
+## Important Notes
 
 - After adding one or more mods to the `<mods>` list or changing any of the `<settings>`, you must `restart` the resource for the changes to take effect.
-- When deleting a mod from your server's filesystem that you will also remove from the resource's `<mods>` list, you must remove the mod's `<file src='...'>` nodes that can be found at the bottom of the `meta.xml` file. Otherwise, the resource won't load if it references files that don't exist.
+- The `mod_downloader` resource manages the storage resource's meta.xml file so you don't have to edit it manually, ever.
 - The `admin` settings editor doesn't update the `<settings>` in `meta.xml` when you save the settings. It actually saves the settings in the server's [settings registry](https://wiki.multitheftauto.com/wiki/Settings_system). So don't worry if you don't see the changes in `meta.xml` after saving the settings in the admin panel, MTA is loading the settings from the registry.
 
 ## GUI Customization
@@ -106,16 +108,9 @@ Demo TP System:
 
 ![Screenshot](/.github/images/demo_tpGUI.png)
 
-## ID Lists
-
-- [MTA:SA Vehicle IDs](https://wiki.multitheftauto.com/wiki/Vehicle_IDs)
-- [MTA:SA Skin IDs](https://wiki.multitheftauto.com/wiki/All_Skins_Page)
-- [MTA:SA Weapon IDs & Object Models](https://wiki.multitheftauto.com/wiki/Weapons)
-- [GTA:SA Object IDs](https://dev.prineside.com/gtasa_samp_model_id/?devtools_locale=en) (ignore the SA-MP IDs)
-
 ## Demo & Examples
 
-There is a **teleportation system** included in the resource which allows you to define locations that players can teleport to, and require certain mods to be loaded in order to teleport to them. See [teleportat_client.lua](/mod_downloader/main/teleport_client.lua) for more information.
+There is a **teleportation system** included in the resource which allows you to define locations that players can teleport to, and require certain mods to be loaded in order to teleport to them. See [teleport_client.lua](/mod_downloader/main/teleport_client.lua) for more information.
 
 There are also **testing commands** that can be used to test certain Mod Downloader features. See [testing_server.lua](/mod_downloader/main/testing_server.lua) for more information.
 

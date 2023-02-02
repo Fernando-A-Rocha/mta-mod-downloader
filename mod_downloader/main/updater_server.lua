@@ -7,7 +7,7 @@
 --]]
 
 local function outputUpdaterInfo(msg)
-    outputServerLog("[Mod Downloader] "..msg)
+    outputServerLog("[MDL Updater] "..msg)
 end
 
 local function fetchLatestCallback(data, info)

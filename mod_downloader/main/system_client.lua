@@ -307,8 +307,6 @@ end
 
 local function onDownloadFailed(modId, modName, path)
 
-	if (not (getSetting("kick_when_too_many_dl_fails"))) then return end
-
 	if not fileDLTries[path] then
 		fileDLTries[path] = 0
 	end
@@ -316,8 +314,10 @@ local function onDownloadFailed(modId, modName, path)
 
     local maxTries = getSetting("max_failed_downloads")
 	if fileDLTries[path] == maxTries then
-		triggerServerEvent("modDownloader:onDownloadManyFails", resourceRoot, true, fileDLTries[path], modId, modName, path)
-		return "KICKED"
+        if getSetting("kick_when_too_many_dl_fails") then
+            triggerServerEvent("modDownloader:onDownloadManyFails", resourceRoot, true, fileDLTries[path], modId, modName, path)
+            return "KICKED"
+        end
     else
         triggerServerEvent("modDownloader:onDownloadManyFails", resourceRoot, false, fileDLTries[path], modId, modName, path)
     end
@@ -327,7 +327,6 @@ end
 local function downloadFirstInQueue()
 	local first = fileDLQueue[1]
 	if not first then
-		outputDebugString("Error getting first in DL queue", 1)
 		return
 	end
 
@@ -345,7 +344,7 @@ local function downloadFirstInQueue()
 	table.remove(fileDLQueue, 1)
 
 	if not downloadFile(path) then
-		outputDebugString("Error trying to download file: "..tostring(path), 1)
+		outputDebugString("[MDL] Error trying to download file: "..tostring(path), 1)
 
         local result = onDownloadFailed(modId, modName, path)
 		if result == "KICKED" then
@@ -365,7 +364,8 @@ local function downloadFirstInQueue()
 	end
 end
 
-local function handleDownloadFinish(fileName, success)
+local function handleDownloadFinish(fileName, success, requestResource)
+    if requestResource ~= resource then return end
 	if not currDownloading then return end
 	local modId, modName, path, activateWhenDone = currDownloading[1], currDownloading[2], currDownloading[3], currDownloading[4]
 
@@ -374,7 +374,7 @@ local function handleDownloadFinish(fileName, success)
 	local waitDelay = 50
 	if not success then
 
-		outputDebugString("Failed to download mod file: "..tostring(fileName), 1)
+		outputDebugString("[MDL] Failed to download mod file: "..tostring(fileName), 1)
 		
         local result = onDownloadFailed(modId, modName, path)
 		if result == "KICKED" then
@@ -398,7 +398,7 @@ local function handleDownloadFinish(fileName, success)
 		busyDownloading = false
 	end
 end
-addEventHandler("onClientFileDownloadComplete", resourceRoot, handleDownloadFinish)
+addEventHandler("onClientFileDownloadComplete", root, handleDownloadFinish)
 
 function downloadModFile(modId, modName, path, activateWhenDone)
 
@@ -503,14 +503,14 @@ local function applyModInOrder(modId, modName, path, theType, lastType, decryptF
     if (decryptFirst) then
         local ncEnabled = getSetting("enable_nandocrypt")
         if not ncEnabled then
-            outputDebugString("NandoCrypt is not enabled, but you are trying to decrypt a file", 1)
+            outputDebugString("[MDL] NandoCrypt is not enabled, but you are trying to decrypt a file", 1)
         else
             if not ncDecryptFunction(path,
                 function(data)
                     applyOneMod(data)
                 end
             ) then
-                outputDebugString("NandoCrypt - Failed to decrypt file: "..tostring(path), 1)
+                outputDebugString("[MDL] NandoCrypt - Failed to decrypt file: "..tostring(path), 1)
             end
         end
     else
@@ -574,7 +574,7 @@ local function loadMods()
         if mod then
             if mod.activated == true then
                 if activatedIDs[mod.id] then
-                    outputDebugString("AntiCheat: Mod replacing ID "..tostring(mod.id).." is already activated, deactivating '"..mod.name.."'", 2)
+                    outputDebugString("[MDL] AntiCheat: Mod replacing ID "..tostring(mod.id).." is already activated, deactivating '"..mod.name.."'", 2)
                     receivedMods[i].activated = false
                     setModStatusSetting(mod.name, false)
                 else
@@ -595,7 +595,7 @@ local function loadMods()
                     if mod_ then
                         if mod_.category == mod.category then
                             if mod_.activated ~= enabled then
-                                outputDebugString("AntiCheat: Mod '"..mod_.name.."' is in the same category as '"..mod.name.."' and has categoryGroupMods=true, setting activated to "..tostring(enabled), 2)
+                                outputDebugString("[MDL] AntiCheat: Mod '"..mod_.name.."' is in the same category as '"..mod.name.."' and has categoryGroupMods=true, setting activated to "..tostring(enabled), 2)
                                 receivedMods[z].activated = enabled
                                 setModStatusSetting(mod_.name, enabled)
                             end
@@ -675,13 +675,13 @@ addEventHandler("modDownloader:forceMods", localPlayer,
         if (not options) then
             options = {}
         elseif (type(options) ~= "table") then
-            outputDebugString("modDownloader:forceMods - options is not a table, assuming empty", 2)
+            outputDebugString("[MDL] forceMods - options is not a table, assuming empty", 2)
             options = {}
         end
         
         local mods = getReceivedMods()
         if not mods then
-            outputDebugString("modDownloader:forceMods - mods not received yet", 1)
+            outputDebugString("[MDL] forceMods - mods not received yet", 1)
             return
         end
 
@@ -707,7 +707,7 @@ addEventHandler("modDownloader:forceMods", localPlayer,
                     end
                 end
                 if not found then
-                    outputDebugString("modDownloader:forceMods - mod not found, ignoring: "..modId, 2)
+                    outputDebugString("[MDL] forceMods - mod not found, ignoring: "..modId, 2)
                     modList[modId] = nil
                 else
                     if not ((enable and found.activated) or ((not enable) and (not found.activated))) then
@@ -743,18 +743,18 @@ local function handleReceiveMods(mods, settings)
         local ncDecryptFunctionName = getSetting("nc_decrypt_function")
         local ncDecrypt = _G[ncDecryptFunctionName]
         if type(ncDecrypt) ~= "function" then
-            return outputDebugString("FATAL - Decrypt function '"..ncDecryptFunctionName.."' not loaded", 1)
+            return outputDebugString("[MDL] NandoCrypt: Decrypt function '"..ncDecryptFunctionName.."' not loaded", 1)
         end
         ncDecryptFunction = ncDecrypt
     end
 
     if type(canEnableMod) ~= "function" then
-        outputDebugString("Function 'canEnableMod' is missing, assuming allowed permission", 2)
+        outputDebugString("[MDL] Function 'canEnableMod' is missing, assuming allowed permission", 2)
         canEnableMod = function() return true end
     end
 
     if type(canDisableMod) ~= "function" then
-        outputDebugString("Function 'canDisableMod' is missing, assuming allowed permission", 2)
+        outputDebugString("[MDL] Function 'canDisableMod' is missing, assuming allowed permission", 2)
         canDisableMod = function() return true end
     end
 

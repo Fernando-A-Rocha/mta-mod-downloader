@@ -1,0 +1,11 @@
+<!-- File Storage
+
+This resource is typically automatically managed by another resource
+which updates this meta.xml file with correct <file src="..." download="true/false"> nodes.
+
+A new node is added when it detects that a file exists in this resource that is not in the meta.xml yet.
+A node is removed from the meta.xml when it detects that the file no longer exists in this resource. -->
+
+<meta>
+    <!-- Everything below is to be managed by the resource writing to this file -->
+</meta>
