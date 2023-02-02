@@ -508,7 +508,7 @@ local function scanModFiles(initial)
 
 						local f = fileCreate(sresPath..path)
 						if not f then
-							outputSystemMsg("Failed to create file: "..sresPath..path)
+							outputSystemMsg("      Failed to create file: "..sresPath..path)
 							return
 						end
 						local content = imgContainer:getFile(name)
@@ -529,20 +529,16 @@ local function scanModFiles(initial)
 
 	local function parseOneImgContainer(fn, path)
 		local imgContainer = engineLoadIMGContainer(sresPath..path)
-		if not (imgContainer or imgContainer.entriesCount) then
-			outputSystemMsg("Failed to parse IMG container: "..sresMeta)
+		if not (imgContainer) then
+			outputSystemMsg("   Failed to parse IMG container: "..sresMeta)
 			return false
 		end
 		if imgContainer.version ~= "VER2" then
-			outputSystemMsg("Unsupported IMG container version: "..imgContainer.version.." in "..fn..".img (expected VER2)")
+			outputSystemMsg("   Unsupported IMG container version: '"..imgContainer.version.."' in "..fn..".img (expected VER2)")
 			return false
 		end
 		local imgFiles = imgContainer:listFiles()
-		if imgContainer.entriesCount ~= #imgFiles then
-			outputSystemMsg("Entries count does not correspond to actual number of files in "..fn..".img")
-			return false
-		end
-		if imgContainer.entriesCount > 0 then
+		if #imgFiles > 0 then
 			
 			outputSystemMsg("   Reading "..#imgFiles.." files from container: "..fn..".img ...")
 
@@ -560,7 +556,6 @@ local function scanModFiles(initial)
 		return true
 	end
 
-	-- https://gtamods.com/wiki/IMG_archive
 	if imgc > 0 then
 
 		outputSystemMsg("Parsing "..imgc.." IMG containers in "..STORAGE_RES_NAME.." (this may take a while)")

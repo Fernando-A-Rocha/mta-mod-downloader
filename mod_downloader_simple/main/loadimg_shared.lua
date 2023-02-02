@@ -98,7 +98,10 @@ function genFileStream()
 			local str = self:get(offset,bytes)
 			local num = 0
 			for i=1,bytes do
-				num = num+str:sub(i,i):byte()*0x100^(i-1)
+				local b = str:sub(i,i):byte()
+				if b then
+					num = num+b*0x100^(i-1)
+				end
 			end
 			return num
 		end;
