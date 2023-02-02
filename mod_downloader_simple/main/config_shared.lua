@@ -8,6 +8,8 @@
 
 -- Client & Server debug/info messages
 DEBUG_ENABLED = true
+MSG_PREFIX_COLOR = "#ffb833"
+MSG_COLOR = "#ffffff"
 MESSAGES_PREFIX = "[SMDL] "
 
 -- File storage resource name

@@ -25,13 +25,12 @@ end
 
 local function outputSystemMsg(msg)
     if (not DEBUG_ENABLED) then return end
-	msg = MESSAGES_PREFIX..msg
-    outputServerLog(msg)
+    outputServerLog(MESSAGES_PREFIX..msg)
 	local playersTable = getElementsByType("player")
 	for i=1, #playersTable do
 		local player = playersTable[i]
 		if player and canExecuteRescan(player) then
-    		outputChatBox(msg, player, 255, 255, 255)
+    		outputChatBox(MSG_PREFIX_COLOR..MESSAGES_PREFIX..MSG_COLOR..msg, player, 255, 255, 255, true)
 		end
 	end
 end
