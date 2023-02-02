@@ -404,9 +404,7 @@ local function scanModFiles()
 end
 
 local function init()
-
 	Async:setPriority(ASYNC_PRIORITY)
-
     setTimer(scanModFiles, 1000, 1)
 end
 addEventHandler("onResourceStart", resourceRoot, init)
@@ -418,6 +416,81 @@ addCommandHandler(COMMAND_RESCAN, function(executor, cmd)
 	scanModFiles()
 end, false, false)
 
+addCommandHandler(COMMAND_EXTRACT_IMG, function(executor, cmd, targetRes, imgPath)
+	if not canExecuteRescan(executor) then
+		return
+	end
+	if not (imgPath and targetRes) then
+		outputSystemMsg("Usage: /"..cmd.." [resource where it's located] [img path] ")
+		outputSystemMsg("   e.g. /"..cmd.." file_storage containers/gta3.img")
+		return
+	end
+	if not getResourceFromName(targetRes) then
+		return outputSystemMsg("Resource '"..targetRes.."' does not exist.")
+	end
+	local pathRes = ""
+	local fn = imgPath
+	if targetRes ~= getResourceName(resource) then
+		pathRes = ":"..targetRes.."/"
+	end
+	local path = pathRes..fn
+	if not fileExists(path) then
+		fn = fn..".img"
+		path = pathRes..fn
+		if not fileExists(path) then
+			return outputSystemMsg("File '"..path.."' does not exist.")
+		end
+	end
+	local outDirectory = pathRes..fn.."_files/"
+	local function parseOneImgFile(imgContainer, name)
+		local extension = string.sub(name, -4)
+		if string.sub(extension, 1, 1) == "." then
+			local theType = string.sub(extension, 2)
+			local nameNoExtension = string.sub(name, 1, -5)
+			if nameNoExtension then
+				nameNoExtension = string.lower(nameNoExtension)
+				local content = imgContainer:getFile(name)
+				if content then
+					local theTypeForModel = "dff"
+					if theType == "txd" then
+						theTypeForModel = "txd"
+					end
+					local pfpath = outDirectory..nameNoExtension.."%s."..theType
+					local id = getIdFromModelName(nameNoExtension, theTypeForModel)
+					if id then
+						pfpath = string.format(pfpath, "_"..id)
+					else
+						pfpath = string.format(pfpath, "")
+					end
+					local file = fileCreate(pfpath)
+					if file then
+						fileWrite(file, content)
+						fileClose(file)
+						outputSystemMsg("Created: "..pfpath)
+					end
+				end
+			end
+		end
+	end
+	local imgContainer = engineLoadIMGContainer(path)
+	if not (imgContainer) then
+		outputSystemMsg("Failed to parse IMG container: "..path)
+		return
+	end
+	if imgContainer.version ~= "VER2" then
+		outputSystemMsg("Unsupported IMG container version: '"..imgContainer.version.."' in "..fn.." (expected VER2)")
+		return
+	end
+	local imgFiles = imgContainer:listFiles()
+	if #imgFiles > 0 then
+		outputSystemMsg("Parsing "..#imgFiles.." files in container: "..fn.." ...")
+		Async:foreach(imgFiles, function(name)
+			parseOneImgFile(imgContainer, name)
+		end)
+	else
+		outputSystemMsg("Container is empty: "..fn)
+	end
+end, false, false)
 
 addEventHandler("modDownloaderSimple:onDownloadManyFails", resourceRoot, function(kick, times, modId, path)
     if not client then return end
