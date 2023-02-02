@@ -56,7 +56,7 @@ function genFileStream()
 						if not self.cachedIndex then self:cache(offset) end
 						local cacheStart,cacheEnd = self.cachedIndex,self.cachedIndex+self.cacheSize
 						local readStart,readEnd = offset,offset+bytes
-						local str = ""
+						local str
 						if readStart >= cacheStart then
 							if readStart >= cacheEnd then
 								self:cache(readStart)

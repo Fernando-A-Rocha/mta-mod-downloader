@@ -198,7 +198,7 @@ local function startScanning()
 				end
 				if not (exists) and (NANDO_CRYPT_ENABLED == true) then
 					path = path ..NANDO_CRYPT_EXTENSION
-					local exists = fileExists(sresPath..path)
+					exists = fileExists(sresPath..path)
 					if (not exists) and (files[path]) then
 						deleteFiles[path] = true
 					elseif (exists) then
@@ -483,9 +483,7 @@ local function scanModFiles(initial)
 
 	local function parseOneImgFile(imgContainer, fn, path, name)
 		local extension = string.sub(name, -4)
-		if not (extension == ".dff" or extension == ".txd" or extension == ".col") then
-			-- outputSystemMsg("      Unsupported file type: "..extension.." in "..fn..".img (expected .dff or .txd)")
-		else
+		if (extension == ".dff" or extension == ".txd" or extension == ".col") then
 			local theType = "txd"
 			if extension == ".dff" then
 				theType = "dff"
@@ -493,14 +491,10 @@ local function scanModFiles(initial)
 				theType = "col"
 			end
 			local nameNoExtension = string.sub(name, 1, -5)
-			if not nameNoExtension then
-				-- outputSystemMsg("      Failed to get name without extension: "..name.." in "..fn..".img")
-			else
+			if nameNoExtension then
 				nameNoExtension = string.lower(nameNoExtension)
 				local id = getIdFromModelName(nameNoExtension, theType=="col" and "dff" or theType)
-				if not id then
-					-- outputSystemMsg("      Failed to get ID from model name: "..nameNoExtension.." in "..fn..".img")
-				else
+				if id then
 					path = path.."_files/"..name
 					local exists = fileExists(sresPath..path)
 					
@@ -520,7 +514,7 @@ local function scanModFiles(initial)
 						local content = imgContainer:getFile(name)
 						fileWrite(f, content)
 						fileClose(f)
-					else
+					-- else
 						-- TODO: checksum
 					end
 
