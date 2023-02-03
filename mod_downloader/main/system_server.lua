@@ -72,7 +72,6 @@ local function loadResSettings()
 
     local VALID_SETTINGS = {
         -- name, default value, minimum value(if number), maximum value(if number)
-        {"storage_resource", "mod_storage"},
         {"default_file_auto_download", false},
 
         {"show_download_dialog", true},
@@ -258,98 +257,28 @@ local function readModsFromMeta()
         return false, "Access permission check function 'canPlayerOpenGUI' is invalid"
     end
 
-    local sresName = getSetting("storage_resource")
+    local f = xmlLoadFile("meta.xml")
+    if not f then
+        xmlUnloadFile(f)
+        return false, "Could not load meta.xml"
+    end
+
+    local children = xmlNodeGetChildren(f)
+    if not children then
+        xmlUnloadFile(f)
+        return false, "Could not get children of meta.xml"
+    end
     
-    local sres = getResourceFromName(sresName)
-	if not sres then
-		local thisFolder = getResourceOrganizationalPath(resource)
-		if thisFolder == "" then
-			thisFolder = nil
-		end
-		local newRes = createResource(sresName, thisFolder)
-		if not newRes then
-			return false, "Failed to create resource '"..sresName.."'."
-		end
-		sres = newRes
-	end
-
-    local sresPath = ":"..sresName.."/"
-
-    local sf = xmlLoadFile(sresPath.."meta.xml")
-    if not sf then
-        return false, "Could not load "..sresPath.."meta.xml"
-    end
-
-    local schildren = xmlNodeGetChildren(sf)
-    if not schildren then
-        xmlUnloadFile(sf)
-        return false, "Could not get children of "..sresPath.."meta.xml"
-    end
-
     local files = {}
 
-	local deleted = 0
-
-    for i=1, #schildren do
-        local v = schildren[i]
+    for i=1, #children do
+        local v = children[i]
         if v then
             if xmlNodeGetName(v) == "file" then
                 local src = xmlNodeGetAttribute(v, "src")
                 if src then
                     if files[src] then
-                        xmlDestroyNode(v)
-						deleted = deleted + 1
-                    else
-                        local path = sresPath..src
-						if not fileExists(path) then
-							xmlDestroyNode(v)
-							deleted = deleted + 1
-						else
-							files[src] = true
-						end
-                    end
-                end
-            end
-        end
-    end
-
-	xmlSaveFile(sf)
-	xmlUnloadFile(sf)
-
-    if deleted > 0 then
-		if not refreshResources(false, sres) then
-			return false, "Failed to refresh resource "..sresName
-		end
-		if not restartResource(resource) then
-            return false, "Failed to restart current resource."
-        end
-	end
-
-	if getResourceState(sres)=="failed to load" then
-		return false, "Resource '"..sresName.."' failed to load: "..getResourceLoadFailureReason(sres)
-	end
-
-    sf = xmlLoadFile(sresPath.."meta.xml")
-    if not sf then
-		return false, "Failed to load file "..sresPath.."meta.xml"
-    end
-
-    schildren = xmlNodeGetChildren(sf)
-    if not schildren then
-        xmlUnloadFile(sf)
-		return false, "Could not get children of "..sresPath.."meta.xml"
-    end
-
-    files = {}
-
-    for i=1, #schildren do
-        local v = schildren[i]
-        if v then
-            if xmlNodeGetName(v) == "file" then
-                local src = xmlNodeGetAttribute(v, "src")
-                if src then
-                    if files[src] then
-                        outputDebugString("Deleting duplicate file entry in "..sresPath.."meta.xml: "..src, 2)
+                        outputDebugString("Deleting duplicate file entry in meta.xml: "..src, 2)
                         xmlDestroyNode(v)
                     else
                         local download = xmlNodeGetAttribute(v, "download")
@@ -363,24 +292,6 @@ local function readModsFromMeta()
                 end
             end
         end
-    end
-
-    if not xmlSaveFile(sf) then
-        xmlUnloadFile(sf)
-        return false, "Could not save "..sresPath.."meta.xml"
-    end
-    xmlUnloadFile(sf)
-
-    local f = xmlLoadFile("meta.xml", true)
-    if not f then
-        xmlUnloadFile(f)
-        return false, "Could not load meta.xml"
-    end
-
-    local children = xmlNodeGetChildren(f)
-    if not children then
-        xmlUnloadFile(f)
-        return false, "Could not get children of meta.xml"
     end
 
     local insertFiles = {}
@@ -503,28 +414,28 @@ local function readModsFromMeta()
                                 for z=1, 3 do
                                     local path = modFiles[z]
                                     if path then
-                                        local exists = fileExists(sresPath..path)
+                                        local exists = fileExists(path)
                                         if (exists) and (not files[path]) then
                                             insertFiles[path] = true
                                         elseif (not exists) and (not files[path]) then
                                             xmlUnloadFile(f)
-                                            return false, "File not found: "..sresPath..path
+                                            return false, "File not found: "..path
                                         end
                                     end
                                 end
 
                                 if dff then
-                                    dff = {path = sresPath..dff, download = (files[dff] and files[dff].download or false)}
+                                    dff = {path = dff, download = (files[dff] and files[dff].download or false)}
                                 else
                                     dff = false
                                 end
                                 if txd then
-                                    txd = {path = sresPath..txd, download = (files[txd] and files[txd].download or false)}
+                                    txd = {path = txd, download = (files[txd] and files[txd].download or false)}
                                 else
                                     txd = false
                                 end
                                 if col then
-                                    col = {path = sresPath..col, download = (files[col] and files[col].download or false)}
+                                    col = {path = col, download = (files[col] and files[col].download or false)}
                                 else
                                     col = false
                                 end
@@ -559,53 +470,34 @@ local function readModsFromMeta()
             end
         end
     end
-    xmlUnloadFile(f)
 
     local ic = 0
     for k, _ in pairs(insertFiles) do
         ic = ic + 1
     end
-    local sresState = getResourceState(sres)
     if ic > 0 then
 
-        sf = xmlLoadFile(sresPath.."meta.xml")
-        if not sf then
-            return false, "Could not load "..sresPath.."meta.xml"
-        end
-
         for file, _ in pairs(insertFiles) do
-            local node = xmlCreateChild(sf, "file")
+            local node = xmlCreateChild(f, "file")
             xmlNodeSetAttribute(node, "src", file)
             xmlNodeSetAttribute(node, "download", tostring(getSetting("default_file_auto_download")))
-            xmlNodeSetAttribute(node, "added_by", getResourceName(resource))
         end
 
-        schildren = xmlNodeGetChildren(sf)
-        if not schildren then
-            xmlUnloadFile(sf)
-            return false, "Could not get children of "..sresPath.."meta.xml"
+        if not xmlSaveFile(f) then
+            xmlUnloadFile(f)
+            return false, "Could not save meta.xml"
+        end
+        xmlUnloadFile(f)
+
+        if not restartResource(resource) then
+            return false, "Could not restart this resource"
         end
 
-        if not xmlSaveFile(sf) then
-            xmlUnloadFile(sf)
-            return false, "Could not save "..sresPath.."meta.xml"
-        end
-        xmlUnloadFile(sf)
+        return true
+    else
+        xmlUnloadFile(f)
     end
 
-    if not (sresState == "running" or sresState == "loaded") then
-        return false, "Resource '"..sresPath.."' has state '"..sresState.."'"
-    end
-    if sresState == "running" and (ic > 0) then
-        if not restartResource(sres) then
-            return false, "Could not restart resource '"..sresPath.."'"
-        end
-    elseif sresState == "loaded" then
-        if not startResource(sres) then
-            return false, "Could not start resource '"..sresPath.."'"
-        end
-    end
-    
     currentlyLoading = nil
 
     for i=1, #clientsWaiting do
@@ -696,15 +588,6 @@ function requestForceModsPlayer(player, modList, options)
     return true
 end
 addEventHandler("modDownloader:requestForceMods", root, requestForceModsPlayer)
-
-local function stopStorage()
-    local sresName = getSetting("storage_resource")
-    local sres = getResourceFromName(sresName)
-    if sres and getResourceState(sres)=="running" then
-        stopResource(sres)
-    end
-end
-addEventHandler("onResourceStop", resourceRoot, stopStorage)
 
 local function initialize()
 

@@ -92,7 +92,6 @@
         <setting name="*gui_request_disable" value="Message from the server: we recommend that you deactivate the following mods:" />
         <setting name="*gui_request_enable" value="Message from the server: we recommend that you activate the following mods:" />
         <setting name="*gui_request_title" value="Mod Requests" />
-        <setting name="*storage_resource" value="mod_storage"></setting>
         <setting name="*default_file_auto_download" value="false"></setting>
     </settings>
     
@@ -144,4 +143,22 @@
         <right name="function.startResource" access="true" />
         <right name="function.fetchRemote" access="true" />
     </aclrequest>
+    
+    <!-- Every node added below is managed automatically by the server -->
+    <file src="mods/sprunk.txd.nandocrypt" download="false"></file>
+    <file src="mods/Robber1.dff" download="false"></file>
+    <file src="mods/schafter.dff" download="false"></file>
+    <file src="mods/sprunk.dff.nandocrypt" download="false"></file>
+    <file src="mods/kickstart.txd" download="false"></file>
+    <file src="mods/Deagle_Gold.txd" download="false"></file>
+    <file src="mods/landstalker.dff" download="false"></file>
+    <file src="mods/elegant.txd.nandocrypt" download="false"></file>
+    <file src="mods/Deagle_Grey.txd" download="false"></file>
+    <file src="mods/schafter.txd" download="false"></file>
+    <file src="mods/elegant.dff.nandocrypt" download="false"></file>
+    <file src="mods/Robber1.txd" download="false"></file>
+    <file src="mods/Deagle.dff" download="false"></file>
+    <file src="mods/Robber2.dff" download="false"></file>
+    <file src="mods/Robber2.txd" download="false"></file>
+    <file src="mods/landstalker.txd" download="false"></file>
 </meta>
