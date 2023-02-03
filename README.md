@@ -125,6 +125,11 @@ Several mods are also included for testing purposes:
 - Bank Robbers - [SlingShot753's Workshop](https://gtaforums.com/topic/917058-slingshot753s-workshop/)
 - Desert Eagle .50 - [SlingShot753's Workshop](https://gtaforums.com/topic/917058-slingshot753s-workshop/)
 
+## Related Projects
+
+- [mta-auto-modloader](https://github.com/Fernando-A-Rocha/mta-auto-modloader#readme): easy to use mod loader system which also supports **NandoCrypt**
+- [mta-add-models](https://github.com/Fernando-A-Rocha/mta-add-models#readme): a library for adding new models (vehicles, skins, etc) to your server which supports **NandoCrypt**
+
 ## Final Note
 
 Feel free to contribute to the project by improving the code & documentation via Pull Requests. Thank you!
