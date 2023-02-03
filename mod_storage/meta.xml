@@ -1,0 +1,27 @@
+<!-- File Storage
+
+This resource is typically automatically managed by another resource
+which updates this meta.xml file with correct <file src="..." download="true/false"> nodes.
+
+A new node is added when it detects that a file exists in this resource that is not in the meta.xml yet.
+A node is removed from the meta.xml when it detects that the file no longer exists in this resource. -->
+
+<meta>
+    <!-- Everything below is to be managed by the resource writing to this file -->
+    <file src="mods/sprunk.txd.nandocrypt" download="false" added_by="mod_downloader"></file>
+    <file src="mods/Robber1.dff" download="false" added_by="mod_downloader"></file>
+    <file src="mods/schafter.dff" download="false" added_by="mod_downloader"></file>
+    <file src="mods/sprunk.dff.nandocrypt" download="false" added_by="mod_downloader"></file>
+    <file src="mods/kickstart.txd" download="false" added_by="mod_downloader"></file>
+    <file src="mods/Deagle_Gold.txd" download="false" added_by="mod_downloader"></file>
+    <file src="mods/landstalker.dff" download="false" added_by="mod_downloader"></file>
+    <file src="mods/elegant.txd.nandocrypt" download="false" added_by="mod_downloader"></file>
+    <file src="mods/Deagle_Grey.txd" download="false" added_by="mod_downloader"></file>
+    <file src="mods/schafter.txd" download="false" added_by="mod_downloader"></file>
+    <file src="mods/elegant.dff.nandocrypt" download="false" added_by="mod_downloader"></file>
+    <file src="mods/Robber1.txd" download="false" added_by="mod_downloader"></file>
+    <file src="mods/Deagle.dff" download="false" added_by="mod_downloader"></file>
+    <file src="mods/Robber2.dff" download="false" added_by="mod_downloader"></file>
+    <file src="mods/Robber2.txd" download="false" added_by="mod_downloader"></file>
+    <file src="mods/landstalker.txd" download="false" added_by="mod_downloader"></file>
+</meta>

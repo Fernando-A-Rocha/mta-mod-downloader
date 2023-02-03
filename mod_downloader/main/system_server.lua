@@ -72,7 +72,7 @@ local function loadResSettings()
 
     local VALID_SETTINGS = {
         -- name, default value, minimum value(if number), maximum value(if number)
-        {"storage_resource", "file_storage"},
+        {"storage_resource", "mod_storage"},
         {"default_file_auto_download", false},
 
         {"show_download_dialog", true},
@@ -175,6 +175,61 @@ local function loadResSettings()
     addMissingSettings()
 end
 
+local function requestModPanel(player)
+    
+    if not canPlayerOpenGUI(player) then
+        outputCustomMessage(player, getSetting("msg_no_access"), "error")
+        return
+    end
+
+    triggerClientEvent(player, "modDownloader:openModPanel", player)
+end
+
+local WEAPON_OBJECT_IDS = {
+    [1] = 331, -- Brassknuckle
+    [2] = 333, -- Golfclub
+    [3] = 334, -- Nightstick
+    [4] = 335, -- Knife
+    [5] = 336, -- Bat
+    [6] = 337, -- Shovel
+    [7] = 338, -- Poolcue
+    [8] = 339, -- Katana
+    [9] = 341, -- Chainsaw
+    [22] = 346, -- Colt 45
+    [23] = 347, -- Silenced
+    [24] = 348, -- Deagle
+    [25] = 349, -- Shotgun
+    [26] = 350, -- Sawedoff
+    [27] = 351, -- Spas12
+    [28] = 352, -- Uzi
+    [29] = 353, -- MP5
+    [32] = 372, -- Tec9
+    [30] = 355, -- AK-47
+    [31] = 356, -- M4
+    [33] = 357, -- Country Rifle
+    [34] = 358, -- Sniper Rifle
+    [35] = 359, -- Rocket Launcher
+    [36] = 360, -- Heat-Seeking RPG
+    [37] = 361, -- Flamethrower
+    [38] = 362, -- Minigun
+    [16] = 342, -- Grenade
+    [17] = 343, -- Teargas
+    [18] = 344, -- Molotov
+    [39] = 363, -- Satchel
+    [41] = 365, -- Spraycan
+    [42] = 366, -- Fire Extinguisher
+    [43] = 367, -- Camera
+    [10] = 321, -- Dildo
+    [11] = 322, -- Dildo
+    [12] = 323, -- Vibrator
+    [14] = 325, -- Flowers
+    [15] = 326, -- Cane
+    [44] = 368, -- Nightvision Goggles
+    [45] = 369, -- Infrared Goggles
+    [46] = 371, -- Parachute
+    [40] = 364 -- Satchel Detonator
+}
+
 local function getNameFromModelID(id)
 
     local name
@@ -233,6 +288,60 @@ local function readModsFromMeta()
 
     local files = {}
 
+	local deleted = 0
+
+    for i=1, #schildren do
+        local v = schildren[i]
+        if v then
+            if xmlNodeGetName(v) == "file" then
+                local src = xmlNodeGetAttribute(v, "src")
+                if src then
+                    if files[src] then
+                        xmlDestroyNode(v)
+						deleted = deleted + 1
+                    else
+                        local path = sresPath..src
+						if not fileExists(path) then
+							xmlDestroyNode(v)
+							deleted = deleted + 1
+						else
+							files[src] = true
+						end
+                    end
+                end
+            end
+        end
+    end
+
+	xmlSaveFile(sf)
+	xmlUnloadFile(sf)
+
+    if deleted > 0 then
+		if not refreshResources(false, sres) then
+			return false, "Failed to refresh resource "..sresName
+		end
+		if not restartResource(resource) then
+            return false, "Failed to restart current resource."
+        end
+	end
+
+	if getResourceState(sres)=="failed to load" then
+		return false, "Resource '"..sresName.."' failed to load: "..getResourceLoadFailureReason(sres)
+	end
+
+    sf = xmlLoadFile(sresPath.."meta.xml")
+    if not sf then
+		return false, "Failed to load file "..sresPath.."meta.xml"
+    end
+
+    schildren = xmlNodeGetChildren(sf)
+    if not schildren then
+        xmlUnloadFile(sf)
+		return false, "Could not get children of "..sresPath.."meta.xml"
+    end
+
+    files = {}
+
     for i=1, #schildren do
         local v = schildren[i]
         if v then
@@ -275,7 +384,6 @@ local function readModsFromMeta()
     end
 
     local insertFiles = {}
-    local deleteFiles = {}
 
     local usedCategories = {}
     local usedModNames = {}
@@ -396,9 +504,7 @@ local function readModsFromMeta()
                                     local path = modFiles[z]
                                     if path then
                                         local exists = fileExists(sresPath..path)
-                                        if (not exists) and (files[path]) then
-                                            deleteFiles[path] = true
-                                        elseif (exists) and (not files[path]) then
+                                        if (exists) and (not files[path]) then
                                             insertFiles[path] = true
                                         elseif (not exists) and (not files[path]) then
                                             xmlUnloadFile(f)
@@ -456,14 +562,11 @@ local function readModsFromMeta()
     xmlUnloadFile(f)
 
     local ic = 0
-    local dc = 0
     for k, _ in pairs(insertFiles) do
         ic = ic + 1
     end
-    for k, _ in pairs(deleteFiles) do
-        dc = dc + 1
-    end
-    if ic > 0 or dc > 0 then
+    local sresState = getResourceState(sres)
+    if ic > 0 then
 
         sf = xmlLoadFile(sresPath.."meta.xml")
         if not sf then
@@ -483,51 +586,44 @@ local function readModsFromMeta()
             return false, "Could not get children of "..sresPath.."meta.xml"
         end
 
-        for i=1, #schildren do
-            local schild = schildren[i]
-            if schild then
-                local schildName = xmlNodeGetName(schild)
-                if schildName == "file" then
-                    local schildSrc = xmlNodeGetAttribute(schild, "src")
-                    if schildSrc then
-                        if deleteFiles[schildSrc] then
-                            xmlDestroyNode(schild)
-                        end
-                    end
-                end
-            end
-        end
-
         if not xmlSaveFile(sf) then
             xmlUnloadFile(sf)
             return false, "Could not save "..sresPath.."meta.xml"
         end
         xmlUnloadFile(sf)
-
-        local sresState = getResourceState(sres)
-        if not (sresState == "running" or sresState == "loaded") then
-            return false, "Resource '"..sresPath.."' has state '"..sresState.."'"
-        end
-        if sresState == "running" then
-            outputSystemMessage("File "..sresPath.."meta.xml has changed, restarting resource...")
-            if not restartResource(sres) then
-                return false, "Could not restart resource '"..sresPath.."'"
-            end
-        elseif sresState == "loaded" then
-            outputSystemMessage("File "..sresPath.."meta.xml has changed, starting resource...")
-            if not startResource(sres) then
-                return false, "Could not start resource '"..sresPath.."'"
-            end
-        end
-        continueInit()
-        return "WAIT"
     end
 
-    if not startResource(sres) then
-        return false, "Could not start resource '"..sresPath.."'"
+    if not (sresState == "running" or sresState == "loaded") then
+        return false, "Resource '"..sresPath.."' has state '"..sresState.."'"
     end
+    if sresState == "running" and (ic > 0) then
+        if not restartResource(sres) then
+            return false, "Could not restart resource '"..sresPath.."'"
+        end
+    elseif sresState == "loaded" then
+        if not startResource(sres) then
+            return false, "Could not start resource '"..sresPath.."'"
+        end
+    end
+    
+    currentlyLoading = nil
 
-    return "PROCEED"
+    for i=1, #clientsWaiting do
+        local player = clientsWaiting[i]
+        if player and isElement(player) then
+            sendModsToPlayer(player, true)
+        end
+    end
+    clientsWaiting = nil
+    
+    addEventHandler("modDownloader:requestOpenModPanel", root, function(player)
+        if not (isElement(player) and getElementType(player)=="player") then return end
+        requestModPanel(player)
+    end)
+
+    outputSystemMessage("Mod Downloader: "..#loadedMods.." mods loaded")
+
+    return true
 end
 
 local function getAllowedMods(player)
@@ -601,16 +697,6 @@ function requestForceModsPlayer(player, modList, options)
 end
 addEventHandler("modDownloader:requestForceMods", root, requestForceModsPlayer)
 
-local function requestModPanel(player)
-    
-    if not canPlayerOpenGUI(player) then
-        outputCustomMessage(player, getSetting("msg_no_access"), "error")
-        return
-    end
-
-    triggerClientEvent(player, "modDownloader:openModPanel", player)
-end
-
 local function stopStorage()
     local sresName = getSetting("storage_resource")
     local sres = getResourceFromName(sresName)
@@ -618,31 +704,7 @@ local function stopStorage()
         stopResource(sres)
     end
 end
-
-local function finishInit()
-    currentlyLoading = nil
-
-    for i=1, #clientsWaiting do
-        local player = clientsWaiting[i]
-        if player and isElement(player) then
-            sendModsToPlayer(player, true)
-        end
-    end
-    clientsWaiting = nil
-    
-    addEventHandler("modDownloader:requestOpenModPanel", root, function(player)
-        if not (isElement(player) and getElementType(player)=="player") then return end
-        requestModPanel(player)
-    end)
-
-    outputSystemMessage("Mod Downloader: "..#loadedMods.." mods loaded")
-
-    addEventHandler("onResourceStop", resourceRoot, stopStorage)
-end
-
-function continueInit()
-    setTimer(finishInit, 1000, 1)
-end
+addEventHandler("onResourceStop", resourceRoot, stopStorage)
 
 local function initialize()
 
@@ -655,12 +717,6 @@ local function initialize()
         stopResource(resource)
         return
     end
-
-    if result == "WAIT" then
-        return
-    end
-
-    finishInit()
 end
 
 addEventHandler("onResourceStart", resourceRoot, function()

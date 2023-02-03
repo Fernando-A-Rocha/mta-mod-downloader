@@ -10,8 +10,8 @@
     <mods>
         <category name="Weapons">
             <!-- You can use weapon IDs from https://wiki.multitheftauto.com/wiki/Weapons or the weapon object model IDs directly -->
-            <mod replace="24" name="Desert Eagle .50 (Gold)" dff="mods/Deagle.dff" txd="mods/Deagle_Gold.txd" activated_by_default="true" />
-            <mod replace="24" name="Desert Eagle .50 (Grey)" dff="mods/Deagle.dff" txd="mods/Deagle_Grey.txd" activated_by_default="false" />
+            <mod replace="348" name="Desert Eagle .50 (Gold)" dff="mods/Deagle.dff" txd="mods/Deagle_Gold.txd" activated_by_default="true" />
+            <mod replace="348" name="Desert Eagle .50 (Grey)" dff="mods/Deagle.dff" txd="mods/Deagle_Grey.txd" activated_by_default="false" />
         </category>
         <category name="Skins">
             <mod replace="78" name="Bank Robber 1" dff="mods/Robber1.dff" txd="mods/Robber1.txd" activated_by_default="false" />
@@ -92,7 +92,7 @@
         <setting name="*gui_request_disable" value="Message from the server: we recommend that you deactivate the following mods:" />
         <setting name="*gui_request_enable" value="Message from the server: we recommend that you activate the following mods:" />
         <setting name="*gui_request_title" value="Mod Requests" />
-        <setting name="*storage_resource" value="file_storage"></setting>
+        <setting name="*storage_resource" value="mod_storage"></setting>
         <setting name="*default_file_auto_download" value="false"></setting>
     </settings>
     
