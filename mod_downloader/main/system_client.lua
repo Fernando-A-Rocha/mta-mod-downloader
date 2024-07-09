@@ -440,6 +440,7 @@ local function applyModInOrder(modId, modName, path, theType, lastType, decryptF
     local function applyCOL(pathOrData)
         local colElement = (modElementCache[modId] and modElementCache[modId].col or engineLoadCOL(pathOrData))
         if colElement then
+            if not modElementCache[modId] then modElementCache[modId] = {} end
             modElementCache[modId].col = colElement
             engineReplaceCOL(colElement, modId)
         end
@@ -448,6 +449,7 @@ local function applyModInOrder(modId, modName, path, theType, lastType, decryptF
     local function applyTXD(pathOrData)
         local txdElement = (modElementCache[modId] and modElementCache[modId].txd or engineLoadTXD(pathOrData))
         if txdElement then
+            if not modElementCache[modId] then modElementCache[modId] = {} end
             modElementCache[modId].txd = txdElement
             engineImportTXD(txdElement, modId)
         end
@@ -456,6 +458,7 @@ local function applyModInOrder(modId, modName, path, theType, lastType, decryptF
     local function applyDFF(pathOrData)
         local dffElement = (modElementCache[modId] and modElementCache[modId].dff or engineLoadDFF(pathOrData))
         if dffElement then
+            if not modElementCache[modId] then modElementCache[modId] = {} end
             modElementCache[modId].dff = dffElement
             engineReplaceModel(dffElement, modId)
         end
