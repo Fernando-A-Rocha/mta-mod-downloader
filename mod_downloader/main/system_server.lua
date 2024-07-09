@@ -171,7 +171,7 @@ local function loadResSettings()
         end
     end
 
-    addMissingSettings()
+    -- addMissingSettings()
 end
 
 local function requestModPanel(player)
