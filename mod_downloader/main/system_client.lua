@@ -152,21 +152,23 @@ local function restoreReplacedModel(id, modName)
     
     engineRestoreModel(id)
 
-    if modElementCache[id] then
-        if isElement(modElementCache[id].txd) then
-            destroyElement(modElementCache[id].txd)
+    local modElements = modElementCache[id]
+    if modElements then
+        if isElement(modElements.col) then
+            destroyElement(modElements.col)
         end
-        if isElement(modElementCache[id].dff) then
-            destroyElement(modElementCache[id].dff)
+        if isElement(modElements.txd) then
+            destroyElement(modElements.txd)
         end
-        if isElement(modElementCache[id].col) then
-            destroyElement(modElementCache[id].col)
+        if isElement(modElements.dff) then
+            destroyElement(modElements.dff)
         end
-
         modElementCache[id] = nil
     end
 
-    triggerEvent("modDownloader:onModelRestored", localPlayer, id, modName)
+    if modName then
+        triggerEvent("modDownloader:onModelRestored", localPlayer, id, modName)
+    end
 end
 
 function toggleModFromGUI(modId, modName, activate, showMessage)
@@ -237,6 +239,8 @@ function toggleModFromGUI(modId, modName, activate, showMessage)
             end
         end
     end
+
+    engineRestreamWorld()
 end
 
 -- [Exported]
@@ -433,60 +437,52 @@ local function applyModInOrder(modId, modName, path, theType, lastType, decryptF
         end
     end
 
-    local function applyTXD(path_)
-        local txdElement = engineLoadTXD(path_)
-        if txdElement then
-            if engineImportTXD(txdElement, modId) then
-                if not modElementCache[modId] then
-                    modElementCache[modId] = {}
-                end
-                modElementCache[modId].txd = txdElement
-            end
-        end
-    end
-
-    local function applyDFF(path_)
-        local dffElement = engineLoadDFF(path_)
-        if dffElement then
-            if engineReplaceModel(dffElement, modId) then
-                if not modElementCache[modId] then
-                    modElementCache[modId] = {}
-                end
-                modElementCache[modId].dff = dffElement
-            end
-        end
-    end
-
-    local function applyCOL(path_)
-        local colElement = engineLoadCOL(path_)
+    local function applyCOL(pathOrData)
+        local colElement = (modElementCache[modId] and modElementCache[modId].col or engineLoadCOL(pathOrData))
         if colElement then
-            if engineReplaceCOL(colElement, modId) then
-                if not modElementCache[modId] then
-                    modElementCache[modId] = {}
-                end
-                modElementCache[modId].col = colElement
-            end
+            if not modElementCache[modId] then modElementCache[modId] = {} end
+            modElementCache[modId].col = colElement
+            engineReplaceCOL(colElement, modId)
+        end
+    end
+
+    local function applyTXD(pathOrData)
+        local txdElement = (modElementCache[modId] and modElementCache[modId].txd or engineLoadTXD(pathOrData))
+        if txdElement then
+            if not modElementCache[modId] then modElementCache[modId] = {} end
+            modElementCache[modId].txd = txdElement
+            engineImportTXD(txdElement, modId)
+        end
+    end
+
+    local function applyDFF(pathOrData)
+        local dffElement = (modElementCache[modId] and modElementCache[modId].dff or engineLoadDFF(pathOrData))
+        if dffElement then
+            if not modElementCache[modId] then modElementCache[modId] = {} end
+            modElementCache[modId].dff = dffElement
+            engineReplaceModel(dffElement, modId)
         end
     end
 
     local function applyOneMod(pathOrData)
-        if theType == "txd" then
+        
+        if theType == "col" then
+            applyCOL(pathOrData)
+        elseif theType == "txd" then
             applyTXD(pathOrData)
         elseif theType == "dff" then
             applyDFF(pathOrData)
-        elseif theType == "col" then
-            applyCOL(pathOrData)
         end
 
-        if theType == "txd" then
+        if theType == "col" then
+            if mod.txd then
+                applyModInOrder(modId, modName, mod.txd.path, "txd", lastType, decryptFirst)
+            elseif mod.dff then
+                applyModInOrder(modId, modName, mod.dff.path, "dff", lastType, decryptFirst)
+            end
+        elseif theType == "txd" then
             if mod.dff then
                 applyModInOrder(modId, modName, mod.dff.path, "dff", lastType, decryptFirst)
-            elseif mod.col then
-                applyModInOrder(modId, modName, mod.col.path, "col", lastType, decryptFirst)
-            end
-        elseif theType == "dff" then
-            if mod.col then
-                applyModInOrder(modId, modName, mod.col.path, "col", lastType, decryptFirst)
             end
         end
 
@@ -534,11 +530,15 @@ function applyReadyMod(modId, modName)
     local dff = mod.dff
     local col = mod.col
 
-    engineRestoreModel(modId)
+    restoreReplacedModel(modId)
 
     local encrypted = mod.encrypted
 
     local lastType = nil
+    if col then
+        col = col.path
+        lastType= "col"
+    end
     if txd then
         txd = txd.path
         lastType = "txd"
@@ -547,17 +547,13 @@ function applyReadyMod(modId, modName)
         dff = dff.path
         lastType = "dff"
     end
-    if col then
-        col = col.path
-        lastType= "col"
-    end
 
-    if txd then
+    if col then
+        applyModInOrder(modId, modName, col, "col", lastType, encrypted)
+    elseif txd then
         applyModInOrder(modId, modName, txd, "txd", lastType, encrypted)
     elseif dff then
         applyModInOrder(modId, modName, dff, "dff", lastType, encrypted)
-    elseif col then
-        applyModInOrder(modId, modName, col, "col", lastType, encrypted)
     end
 end
 
@@ -796,3 +792,15 @@ local function handleReceiveMods(mods, settings)
     populateModsGUI()
 end
 addEventHandler("modDownloader:receiveMods", localPlayer, handleReceiveMods)
+
+addEventHandler("onClientResourceStop", resourceRoot, function()
+    -- Restore all replaced models
+    if type(receivedMods) == "table" then
+        for i=1, #receivedMods do
+            local mod = receivedMods[i]
+            if mod then
+                restoreReplacedModel(mod.id)
+            end
+        end
+    end
+end, false)
